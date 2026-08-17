@@ -48,13 +48,13 @@ routes.json             permissions json-server-auth
 
 La version `2.1.0` de json-server-auth utilise la clé interne fixe `json-server-auth-123456` et l'algorithme HS256. Le middleware JWT des routes métier emploie exactement les mêmes paramètres. Cette clé est acceptable uniquement pour le mock local et devra disparaître lors du remplacement par un véritable backend.
 
-| Ressource | Règle | Justification |
-| --- | ---: | --- |
-| `users` | `600` | Chaque compte est privé et lié à son propriétaire. |
-| `clinics` | `444` | L'annuaire est public et sans écriture CRUD. |
-| `doctors` | `644` | Lecture publique, écriture limitée au profil propriétaire via `userId`. |
-| `availabilitySlots` | `644` | Lecture publique. Les écritures sont bloquées dans `server.js` et devront passer par des routes métier. |
-| `appointments` | `600` | Ownership patient reconnu par le champ obligatoire `userId`. Les écritures CRUD sont bloquées au profit des actions métier. |
+| Ressource           | Règle | Justification                                                                                                               |
+| ------------------- | ----: | --------------------------------------------------------------------------------------------------------------------------- |
+| `users`             | `600` | Chaque compte est privé et lié à son propriétaire.                                                                          |
+| `clinics`           | `444` | L'annuaire est public et sans écriture CRUD.                                                                                |
+| `doctors`           | `644` | Lecture publique, écriture limitée au profil propriétaire via `userId`.                                                     |
+| `availabilitySlots` | `644` | Lecture publique. Les écritures sont bloquées dans `server.js` et devront passer par des routes métier.                     |
+| `appointments`      | `600` | Ownership patient reconnu par le champ obligatoire `userId`. Les écritures CRUD sont bloquées au profit des actions métier. |
 
 Le rôle `patient` ou `doctor` reste un simple champ métier de `users`. Il n'est pas transformé en système de rôles json-server-auth.
 
@@ -96,5 +96,10 @@ Ne réutilisez pas ce secret de démonstration dans un environnement partagé.
 
 ```bash
 pnpm check
+pnpm lint
+pnpm format:check
+pnpm test
 pnpm build
 ```
+
+Les règles de contribution, les branches et le parcours des pull requests sont décrits dans `CONTRIBUTING.md`.

@@ -1,0 +1,46 @@
+name: Quality
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v6
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Vérifier la structure
+        run: pnpm check
+
+      - name: Vérifier le code
+        run: pnpm lint
+
+      - name: Vérifier le formatage
+        run: pnpm format:check
+
+      - name: Exécuter les tests
+        run: pnpm test
+
+      - name: Construire le frontend
+        run: pnpm build

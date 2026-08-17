@@ -37,7 +37,9 @@ function requireJwt(request, response, next) {
     request.auth = jwt.verify(token, JWT_SECRET_KEY, { algorithms: ['HS256'] })
     return next()
   } catch {
-    return response.status(401).json({ message: 'Session invalide ou expirée.' })
+    return response
+      .status(401)
+      .json({ message: 'Session invalide ou expirée.' })
   }
 }
 
@@ -52,20 +54,34 @@ const plannedBusinessRoutes = [
 plannedBusinessRoutes.forEach(([method, route]) => {
   app[method](route, requireJwt, (_request, response) => {
     response.status(501).json({
-      message: 'Route métier préparée mais non implémentée dans le socle initial.',
+      message:
+        'Route métier préparée mais non implémentée dans le socle initial.',
     })
   })
 })
 
-app.use(['/appointments', '/appointments/*', '/availabilitySlots', '/availabilitySlots/*'], (request, response, next) => {
-  if (request.method === 'GET' || request.method === 'HEAD' || request.method === 'OPTIONS') {
-    return next()
-  }
+app.use(
+  [
+    '/appointments',
+    '/appointments/*',
+    '/availabilitySlots',
+    '/availabilitySlots/*',
+  ],
+  (request, response, next) => {
+    if (
+      request.method === 'GET' ||
+      request.method === 'HEAD' ||
+      request.method === 'OPTIONS'
+    ) {
+      return next()
+    }
 
-  return response.status(405).json({
-    message: 'Utilisez une route /api métier pour modifier les rendez-vous ou les créneaux.',
-  })
-})
+    return response.status(405).json({
+      message:
+        'Utilisez une route /api métier pour modifier les rendez-vous ou les créneaux.',
+    })
+  },
+)
 
 app.use(router)
 
