@@ -1,0 +1,33 @@
+{
+  "name": "munganga",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Socle du MVP académique Munganga pour la prise de rendez-vous médical à Brazzaville.",
+  "scripts": {
+    "dev": "vite",
+    "api": "node server.js",
+    "start": "concurrently -k -n FRONTEND,API -c cyan,green \"pnpm dev\" \"pnpm api\"",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "node scripts/validate-project.js"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "5.101.4",
+    "@tanstack/react-router": "1.170.29",
+    "dotenv": "16.6.1",
+    "json-server": "0.17.4",
+    "json-server-auth": "2.1.0",
+    "jsonwebtoken": "8.5.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.0.5",
+    "concurrently": "10.0.5",
+    "vite": "8.2.1"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "packageManager": "pnpm@11.19.0"
+}
