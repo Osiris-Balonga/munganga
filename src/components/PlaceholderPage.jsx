@@ -1,4 +1,8 @@
-export function PlaceholderPage({ eyebrow = 'Socle initial', title, description }) {
+export function PlaceholderPage({
+  eyebrow = 'Socle initial',
+  title,
+  description,
+}) {
   return (
     <section className="placeholder-page">
       <p className="eyebrow">{eyebrow}</p>

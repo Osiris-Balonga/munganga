@@ -1,0 +1,26 @@
+name: Fonctionnalité
+description: Développer une fonctionnalité liée au MVP.
+title: 'feat: '
+labels: ['type:feature']
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objectif
+      description: Décrire le résultat utilisateur ou technique attendu.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critères d’acceptation
+      description: Ajouter une checklist vérifiable.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dépendances
+      description: Indiquer les issues ou décisions nécessaires.

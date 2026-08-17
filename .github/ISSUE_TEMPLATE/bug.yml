@@ -1,0 +1,27 @@
+name: Anomalie
+description: Signaler un comportement incorrect ou une régression.
+title: 'fix: '
+labels: ['bug']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème observé
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes de reproduction
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+    validations:
+      required: true

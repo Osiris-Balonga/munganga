@@ -6,7 +6,8 @@ export async function apiClient(path, options = {}) {
   const token = getAccessToken()
   const headers = new Headers(options.headers)
 
-  if (!headers.has('Content-Type') && options.body) headers.set('Content-Type', 'application/json')
+  if (!headers.has('Content-Type') && options.body)
+    headers.set('Content-Type', 'application/json')
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
   const response = await fetch(`${API_URL}${path}`, { ...options, headers })
@@ -17,7 +18,9 @@ export async function apiClient(path, options = {}) {
     throw new Error('Votre session a expiré.')
   }
 
-  const payload = response.status === 204 ? null : await response.json().catch(() => null)
-  if (!response.ok) throw new Error(payload?.message || `Erreur API (${response.status})`)
+  const payload =
+    response.status === 204 ? null : await response.json().catch(() => null)
+  if (!response.ok)
+    throw new Error(payload?.message || `Erreur API (${response.status})`)
   return payload
 }
