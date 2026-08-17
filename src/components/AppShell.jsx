@@ -4,7 +4,9 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <Link to="/" className="brand">Munganga</Link>
+        <Link to="/" className="brand">
+          Munganga
+        </Link>
         <nav aria-label="Navigation principale">
           <Link to="/doctors">Médecins</Link>
           <Link to="/clinics">Cliniques</Link>
