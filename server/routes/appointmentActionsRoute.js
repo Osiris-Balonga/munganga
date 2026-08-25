@@ -16,7 +16,11 @@ function registerAppointmentActionsRoute(app, { requireJwt }) {
     (request, response, next) => {
       try {
         const doctor = requireDoctorProfile(app.db, request.auth)
-        const appointment = confirmAppointment(app.db, doctor, request.params.id)
+        const appointment = confirmAppointment(
+          app.db,
+          doctor,
+          request.params.id,
+        )
         return response.status(200).json(appointment)
       } catch (error) {
         return next(error)
