@@ -1,9 +1,17 @@
 const path = require('node:path')
 const jsonServer = require('json-server')
 const auth = require('json-server-auth')
-const { JWT_SECRET_KEY } = require('json-server-auth/dist/constants')
-const jwt = require('jsonwebtoken')
 require('dotenv').config()
+
+const { requireJwt } = require('./server/middlewares/requireJwt')
+const { errorHandler } = require('./server/utils/apiError')
+const { registerBookRoute } = require('./server/routes/bookRoute')
+const {
+  registerAppointmentActionsRoute,
+} = require('./server/routes/appointmentActionsRoute')
+const {
+  registerDoctorAppointmentsRoute,
+} = require('./server/routes/doctorAppointmentsRoute')
 
 const app = jsonServer.create()
 const router = jsonServer.router(path.join(__dirname, 'db.json'))
@@ -25,40 +33,11 @@ app.post(['/register', '/signup'], (request, _response, next) => {
 
 app.use(auth)
 
-function requireJwt(request, response, next) {
-  const authorization = request.get('authorization') || ''
-  const [scheme, token] = authorization.split(' ')
-
-  if (scheme !== 'Bearer' || !token) {
-    return response.status(401).json({ message: 'Authentification requise.' })
-  }
-
-  try {
-    request.auth = jwt.verify(token, JWT_SECRET_KEY, { algorithms: ['HS256'] })
-    return next()
-  } catch {
-    return response
-      .status(401)
-      .json({ message: 'Session invalide ou expirée.' })
-  }
-}
-
-const plannedBusinessRoutes = [
-  ['post', '/api/book'],
-  ['patch', '/api/appointments/:id/confirm'],
-  ['patch', '/api/appointments/:id/refuse'],
-  ['patch', '/api/appointments/:id/cancel'],
-  ['get', '/api/doctor/appointments'],
-]
-
-plannedBusinessRoutes.forEach(([method, route]) => {
-  app[method](route, requireJwt, (_request, response) => {
-    response.status(501).json({
-      message:
-        'Route métier préparée mais non implémentée dans le socle initial.',
-    })
-  })
-})
+// Routes métier : chaque module s'enregistre lui-même sur `app` et reçoit
+// le middleware requireJwt centralisé en dépendance (voir issue #7).
+registerBookRoute(app, { requireJwt })
+registerAppointmentActionsRoute(app, { requireJwt })
+registerDoctorAppointmentsRoute(app, { requireJwt })
 
 app.use(
   [
@@ -84,6 +63,10 @@ app.use(
 )
 
 app.use(router)
+
+// Gestionnaire d'erreur centralisé : toute erreur passée à next(error)
+// dans une route métier finit ici avec un format JSON cohérent.
+app.use(errorHandler)
 
 app.listen(port, () => {
   console.log(`API Munganga disponible sur http://localhost:${port}`)
