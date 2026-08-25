@@ -5,17 +5,33 @@ import { LocationMeta } from './EntityMeta'
 export function ClinicCard({ clinic, variant = 'standard' }) {
   return (
     <article className={`entity-card clinic-card clinic-card--${variant}`}>
-      <div className="clinic-card__heading">
-        <span className="clinic-card__mark" aria-hidden="true">
-          +
-        </span>
-        <div>
-          <h3>{clinic.name}</h3>
-          <p>{clinic.type ?? 'Clinique'}</p>
-        </div>
+      <div className="clinic-card__media">
+        {clinic.imageUrl ? (
+          <img src={clinic.imageUrl} alt="" />
+        ) : (
+          <span className="clinic-card__mark" aria-hidden="true">
+            +
+          </span>
+        )}
+        {clinic.status ? (
+          <span
+            className={`clinic-card__status clinic-card__status--${clinic.statusTone ?? 'success'}`}
+          >
+            {clinic.status}
+          </span>
+        ) : null}
       </div>
-      <div className="entity-card__body">
+      <div className="clinic-card__content">
+        <div className="clinic-card__heading">
+          <div>
+            <h3>{clinic.name}</h3>
+            <p>{clinic.type ?? 'Clinique'}</p>
+          </div>
+        </div>
         <LocationMeta>{clinic.address}</LocationMeta>
+        {clinic.hours ? (
+          <span className="clinic-card__hours">◷ {clinic.hours}</span>
+        ) : null}
         {variant !== 'compact' && clinic.specialties?.length ? (
           <ul className="clinic-card__specialties" aria-label="Spécialités">
             {clinic.specialties.slice(0, 3).map((specialty) => (
@@ -23,17 +39,17 @@ export function ClinicCard({ clinic, variant = 'standard' }) {
             ))}
           </ul>
         ) : null}
+        <Button
+          className="entity-card__action"
+          render={
+            <Link params={{ clinicId: clinic.id }} to="/clinics/$clinicId" />
+          }
+          size="sm"
+          variant="secondary"
+        >
+          Voir la clinique
+        </Button>
       </div>
-      <Button
-        className="entity-card__action"
-        render={
-          <Link params={{ clinicId: clinic.id }} to="/clinics/$clinicId" />
-        }
-        size="sm"
-        variant="secondary"
-      >
-        Voir la clinique
-      </Button>
     </article>
   )
 }

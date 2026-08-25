@@ -1,6 +1,6 @@
 # Design system Munganga
 
-Ce dossier contient la référence d’interface commune aux parcours visiteur, patient et médecin. La page locale `/ui-kit` permet de contrôler visuellement les composants et leurs états.
+Ce dossier contient la référence d’interface commune aux parcours visiteur, patient et médecin. La page locale `/ui-kit` permet de contrôler visuellement les composants et leurs états, puis de copier leurs exemples d’utilisation directement dans le projet.
 
 ## Principes
 
@@ -31,11 +31,13 @@ import { Button, SelectField, StatusBadge } from '../design-system'
 import { DoctorCard, AppointmentCard } from '../components/domain'
 ```
 
+Chaque famille présentée dans `/ui-kit` contient un exemple copiable avec les propriétés essentielles. Le catalogue constitue la documentation d’usage principale ; ce fichier conserve les décisions d’architecture et les règles de contribution.
+
 ## Composants unifiés
 
 ### Annuaire
 
-- `DoctorCard` : `standard`, `compact`, `featured`.
+- `DoctorCard` : `standard`, `compact`.
 - `ClinicCard` : `standard`, `compact`.
 - `DoctorIdentity`, `InitialsAvatar`, `LocationMeta` : briques communes d’identité et de métadonnées.
 
