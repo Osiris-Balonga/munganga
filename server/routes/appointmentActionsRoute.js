@@ -47,7 +47,7 @@ function registerAppointmentActionsRoute(app, { requireJwt }) {
     requireJwt,
     (request, response, next) => {
       try {
-        const patientId = request.auth.id
+        const patientId = request.auth.userId
         const appointment = cancelAppointment(
           app.db,
           patientId,

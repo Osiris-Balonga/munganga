@@ -8,7 +8,7 @@ const { bookAppointment } = require('../services/appointmentsService')
 function registerBookRoute(app, { requireJwt }) {
   app.post('/api/book', requireJwt, (request, response, next) => {
     try {
-      const patientId = request.auth.id
+      const patientId = request.auth.userId
       const appointment = bookAppointment(app.db, patientId, request.body)
       return response.status(201).json(appointment)
     } catch (error) {
