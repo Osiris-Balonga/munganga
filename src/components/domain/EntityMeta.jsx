@@ -1,3 +1,5 @@
+import { Clock3, MapPin } from 'lucide-react'
+
 export function InitialsAvatar({ name, imageUrl, size = 'md' }) {
   const initials = name
     .split(' ')
@@ -39,7 +41,7 @@ export function DoctorIdentity({ doctor, size = 'md' }) {
 export function DateTimeMeta({ date, time }) {
   return (
     <span className="entity-meta">
-      <span aria-hidden="true">◷</span>
+      <Clock3 aria-hidden="true" />
       <span>
         {date} · {time}
       </span>
@@ -50,7 +52,7 @@ export function DateTimeMeta({ date, time }) {
 export function LocationMeta({ children }) {
   return (
     <span className="entity-meta">
-      <span aria-hidden="true">⌖</span>
+      <MapPin aria-hidden="true" />
       <span>{children}</span>
     </span>
   )

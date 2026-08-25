@@ -1,25 +1,46 @@
 import { Menu } from '@base-ui/react/menu'
 import { Link } from '@tanstack/react-router'
+import {
+  BriefcaseMedical,
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  ClipboardList,
+  Clock3,
+  House,
+  Stethoscope,
+  UserRound,
+} from 'lucide-react'
 
 const navigationByMode = {
   visitor: [
-    { label: 'Accueil', shortLabel: 'Accueil', to: '/', symbol: '⌂' },
-    { label: 'Médecins', shortLabel: 'Médecins', to: '/doctors', symbol: '✚' },
+    { label: 'Accueil', shortLabel: 'Accueil', to: '/', icon: House },
+    {
+      label: 'Médecins',
+      shortLabel: 'Médecins',
+      to: '/doctors',
+      icon: Stethoscope,
+    },
     {
       label: 'Cliniques',
       shortLabel: 'Cliniques',
       to: '/clinics',
-      symbol: '+',
+      icon: Building2,
     },
   ],
   patient: [
-    { label: 'Accueil', shortLabel: 'Accueil', to: '/', symbol: '⌂' },
-    { label: 'Médecins', shortLabel: 'Médecins', to: '/doctors', symbol: '✚' },
+    { label: 'Accueil', shortLabel: 'Accueil', to: '/', icon: House },
+    {
+      label: 'Médecins',
+      shortLabel: 'Médecins',
+      to: '/doctors',
+      icon: Stethoscope,
+    },
     {
       label: 'Mes rendez-vous',
       shortLabel: 'Rendez-vous',
       to: '/patient/appointments',
-      symbol: '◷',
+      icon: CalendarDays,
     },
   ],
   doctor: [
@@ -27,19 +48,19 @@ const navigationByMode = {
       label: 'Agenda',
       shortLabel: 'Agenda',
       to: '/doctor/agenda',
-      symbol: '▦',
+      icon: CalendarDays,
     },
     {
       label: 'Demandes',
       shortLabel: 'Demandes',
       to: '/doctor/appointments',
-      symbol: '◷',
+      icon: ClipboardList,
     },
     {
       label: 'Disponibilités',
       shortLabel: 'Disponibilités',
       to: '/doctor/availability',
-      symbol: '⊕',
+      icon: Clock3,
     },
   ],
 }
@@ -48,7 +69,7 @@ function Brand() {
   return (
     <Link className="app-brand" to="/">
       <span className="app-brand__mark" aria-hidden="true">
-        +
+        <BriefcaseMedical />
       </span>
       <span>Munganga</span>
     </Link>
@@ -88,7 +109,7 @@ export function AccountMenu({
           <strong>{user?.name ?? 'Mon compte'}</strong>
           <small>{mode === 'doctor' ? 'Mode médecin' : 'Mode patient'}</small>
         </span>
-        <span aria-hidden="true">⌄</span>
+        <ChevronDown className="account-trigger__chevron" aria-hidden="true" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner
@@ -174,7 +195,7 @@ export function MobileTopBar({
           to="/login"
           aria-label="Connexion"
         >
-          <span aria-hidden="true">○</span>
+          <UserRound aria-hidden="true" />
         </Link>
       ) : (
         <AccountMenu
@@ -192,7 +213,12 @@ export function MobileBottomNav({ mode = 'visitor' }) {
   const items = navigationByMode[mode]
   const accountItem =
     mode === 'visitor'
-      ? { label: 'Connexion', shortLabel: 'Compte', to: '/login', symbol: '○' }
+      ? {
+          label: 'Connexion',
+          shortLabel: 'Compte',
+          to: '/login',
+          icon: UserRound,
+        }
       : null
   const mobileItems = accountItem ? [...items, accountItem] : items
 
@@ -206,7 +232,7 @@ export function MobileBottomNav({ mode = 'visitor' }) {
           key={item.to}
           to={item.to}
         >
-          <span aria-hidden="true">{item.symbol}</span>
+          <item.icon className="mobile-bottom-nav__icon" aria-hidden="true" />
           <small>{item.shortLabel}</small>
         </Link>
       ))}

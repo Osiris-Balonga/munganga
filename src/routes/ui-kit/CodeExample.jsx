@@ -1,13 +1,5 @@
+import { Copy } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-
-function CopyIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 20">
-      <rect height="11" rx="2" width="11" x="6" y="6" />
-      <path d="M4 14H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  )
-}
 
 export function CodeExample({
   title = 'Exemple d’utilisation',
@@ -51,7 +43,7 @@ export function CodeExample({
           <small>{language}</small>
         </span>
         <button className="code-example__copy" onClick={copyCode} type="button">
-          <CopyIcon />
+          <Copy aria-hidden="true" />
           <span>{copyLabel}</span>
         </button>
       </figcaption>

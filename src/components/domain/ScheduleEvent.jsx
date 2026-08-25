@@ -1,9 +1,17 @@
 import { StatusBadge } from '../../design-system'
 
 export function ScheduleEvent({ event }) {
+  const [startTime, endTime] = event.time.split('–')
+
   return (
     <article className={`schedule-event schedule-event--${event.status}`}>
-      <time className="schedule-event__time">{event.time}</time>
+      <time
+        aria-label={endTime ? `${startTime} à ${endTime}` : startTime}
+        className="schedule-event__time"
+      >
+        <span>{startTime}</span>
+        {endTime ? <span>{endTime}</span> : null}
+      </time>
       <div className="schedule-event__copy">
         <div>
           <strong>{event.patientName}</strong>

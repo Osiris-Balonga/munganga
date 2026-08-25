@@ -34,7 +34,12 @@
   border-radius: var(--radius-md);
   background: var(--color-brand-600);
   color: white;
-  font-size: var(--text-lg);
+}
+
+.app-brand__mark svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  stroke-width: 2;
 }
 
 .desktop-nav {
@@ -84,18 +89,22 @@
   min-height: 2.75rem;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
   color: var(--color-ink);
   cursor: pointer;
 }
 
 .account-trigger:hover,
 .account-trigger[data-popup-open] {
-  border-color: var(--color-brand-500);
   background: var(--color-surface-brand);
+}
+
+.account-trigger:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
 }
 
 .account-trigger__avatar {
@@ -121,6 +130,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.account-trigger__chevron {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-ink-muted);
+  stroke-width: 1.75;
 }
 
 .account-trigger__copy strong {
@@ -190,8 +206,20 @@
   }
 
   .mobile-topbar .account-trigger__copy,
-  .mobile-topbar .account-trigger > span:last-child {
+  .mobile-topbar .account-trigger__chevron {
     display: none;
+  }
+
+  .mobile-topbar .account-trigger {
+    width: 2.75rem;
+    height: 2.75rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .mobile-topbar .account-trigger__avatar {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .mobile-account-link {
@@ -203,6 +231,12 @@
     color: var(--color-brand-700);
     font-size: var(--text-xl);
     text-decoration: none;
+  }
+
+  .mobile-account-link svg {
+    width: 1.375rem;
+    height: 1.375rem;
+    stroke-width: 1.75;
   }
 
   .mobile-bottom-nav {
@@ -230,9 +264,10 @@
     text-decoration: none;
   }
 
-  .mobile-bottom-nav__link > span {
-    font-size: var(--text-lg);
-    line-height: 1;
+  .mobile-bottom-nav__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 1.75;
   }
 
   .mobile-bottom-nav__link > small {

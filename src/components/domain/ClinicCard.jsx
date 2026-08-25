@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { Clock3, Hospital } from 'lucide-react'
 import { Button } from '../../design-system'
 import { LocationMeta } from './EntityMeta'
 
@@ -10,7 +11,7 @@ export function ClinicCard({ clinic, variant = 'standard' }) {
           <img src={clinic.imageUrl} alt="" />
         ) : (
           <span className="clinic-card__mark" aria-hidden="true">
-            +
+            <Hospital />
           </span>
         )}
         {clinic.status ? (
@@ -30,7 +31,10 @@ export function ClinicCard({ clinic, variant = 'standard' }) {
         </div>
         <LocationMeta>{clinic.address}</LocationMeta>
         {clinic.hours ? (
-          <span className="clinic-card__hours">◷ {clinic.hours}</span>
+          <span className="clinic-card__hours">
+            <Clock3 aria-hidden="true" />
+            {clinic.hours}
+          </span>
         ) : null}
         {variant !== 'compact' && clinic.specialties?.length ? (
           <ul className="clinic-card__specialties" aria-label="Spécialités">

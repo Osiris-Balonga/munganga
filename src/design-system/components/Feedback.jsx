@@ -1,3 +1,4 @@
+import { CircleAlert, SearchX } from 'lucide-react'
 import { Button } from './Button'
 
 const statusLabels = {
@@ -48,7 +49,7 @@ export function EmptyState({ title, description, action }) {
   return (
     <section className="ds-state" aria-labelledby="empty-state-title">
       <span className="ds-state__symbol" aria-hidden="true">
-        ···
+        <SearchX />
       </span>
       <h2 className="ds-state__title" id="empty-state-title">
         {title}
@@ -66,7 +67,7 @@ export function ErrorState({ title, description, onRetry }) {
         className="ds-state__symbol ds-state__symbol--danger"
         aria-hidden="true"
       >
-        !
+        <CircleAlert />
       </span>
       <h2 className="ds-state__title">{title}</h2>
       <p className="ds-state__description">{description}</p>
