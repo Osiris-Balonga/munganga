@@ -20,6 +20,7 @@ import {
   PatientAppointmentsPage,
   RegisterPage,
 } from '../routes/pages'
+import { UiKitPage } from '../routes/UiKitPage'
 
 const rootRoute = createRootRouteWithContext()({ component: AppShell })
 
@@ -42,6 +43,7 @@ const routes = [
   route('/clinics/$clinicId', ClinicPage),
   route('/login', LoginPage),
   route('/register', RegisterPage),
+  route('/ui-kit', UiKitPage),
   route('/patient/appointments', PatientAppointmentsPage, {
     beforeLoad: () => requireRole('patient'),
   }),

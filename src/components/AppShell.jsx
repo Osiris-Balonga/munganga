@@ -1,21 +1,28 @@
-import { Link, Outlet } from '@tanstack/react-router'
+import { Outlet, useRouterState } from '@tanstack/react-router'
+import {
+  DesktopHeader,
+  MobileBottomNav,
+  MobileTopBar,
+} from './navigation/AppNavigation'
 
 export function AppShell() {
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const mode = pathname.startsWith('/doctor/')
+    ? 'doctor'
+    : pathname.startsWith('/patient/')
+      ? 'patient'
+      : 'visitor'
+
   return (
     <div className="app-shell">
-      <header className="site-header">
-        <Link to="/" className="brand">
-          Munganga
-        </Link>
-        <nav aria-label="Navigation principale">
-          <Link to="/doctors">Médecins</Link>
-          <Link to="/clinics">Cliniques</Link>
-          <Link to="/login">Connexion</Link>
-        </nav>
-      </header>
+      <DesktopHeader mode={mode} />
+      <MobileTopBar mode={mode} />
       <main>
         <Outlet />
       </main>
+      <MobileBottomNav mode={mode} />
     </div>
   )
 }
