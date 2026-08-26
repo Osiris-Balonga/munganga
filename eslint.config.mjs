@@ -28,11 +28,17 @@ export default [
     },
   },
   {
-    files: ['*.js', 'scripts/**/*.js', 'tests/**/*.js'],
+    files: ['*.js', 'server/**/*.js', 'scripts/**/*.js', 'tests/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       globals: globals.node,
       sourceType: 'commonjs',
+    },
+    rules: {
+      // Convention : un paramètre préfixé par _ est intentionnellement
+      // non utilisé pour l'instant (ex. squelettes de services dans
+      // appointmentsService.js, en attendant les issues #9-#13).
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
 ]

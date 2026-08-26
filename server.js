@@ -1,90 +1,102 @@
 const path = require('node:path')
 const jsonServer = require('json-server')
 const auth = require('json-server-auth')
-const { JWT_SECRET_KEY } = require('json-server-auth/dist/constants')
-const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
-const app = jsonServer.create()
-const router = jsonServer.router(path.join(__dirname, 'db.json'))
-const defaults = jsonServer.defaults()
-const rules = require('./routes.json')
-const port = Number(process.env.PORT || 3001)
+const { requireJwt } = require('./server/middlewares/requireJwt')
+const { errorHandler } = require('./server/utils/apiError')
+const { registerBookRoute } = require('./server/routes/bookRoute')
+const {
+  registerAppointmentActionsRoute,
+} = require('./server/routes/appointmentActionsRoute')
+const {
+  registerDoctorAppointmentsRoute,
+} = require('./server/routes/doctorAppointmentsRoute')
 
-app.db = router.db
-app.use(defaults)
-app.use(jsonServer.bodyParser)
+// Construit l'application Express/json-server. Extrait dans une fonction
+// (plutôt qu'exécuté directement au chargement du fichier) pour que les
+// tests HTTP puissent démarrer un serveur isolé sur une base de test et un
+// port de test, sans dupliquer le branchement des routes ni des middlewares.
+//
+// `overrides.appointmentsService`, si fourni, remplace le vrai service dans
+// toutes les routes métier — utilisé par les tests pour espionner les
+// arguments reçus par une fonction encore non implémentée (ex. cancel).
+function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
+  const app = jsonServer.create()
+  const router = jsonServer.router(dbPath)
+  const defaults = jsonServer.defaults()
+  const rules = require('./routes.json')
 
-// Ordre obligatoire : règles de réécriture, authentification, puis router.
-app.use(auth.rewriter(rules))
+  app.db = router.db
+  app.use(defaults)
+  app.use(jsonServer.bodyParser)
 
-app.post(['/register', '/signup'], (request, _response, next) => {
-  request.body.role = 'patient'
-  next()
-})
+  // Ordre obligatoire : règles de réécriture, authentification, puis router.
+  app.use(auth.rewriter(rules))
 
-app.use(auth)
+  app.post(['/register', '/signup'], (request, _response, next) => {
+    request.body.role = 'patient'
+    next()
+  })
 
-function requireJwt(request, response, next) {
-  const authorization = request.get('authorization') || ''
-  const [scheme, token] = authorization.split(' ')
+  app.use(auth)
 
-  if (scheme !== 'Bearer' || !token) {
-    return response.status(401).json({ message: 'Authentification requise.' })
-  }
+  // Routes métier : chaque module s'enregistre lui-même sur `app` et reçoit
+  // le middleware requireJwt centralisé en dépendance (voir issue #7).
+  // `services` reste undefined en production : chaque route retombe alors
+  // sur son import par défaut du vrai appointmentsService.
+  registerBookRoute(app, {
+    requireJwt,
+    services: overrides.appointmentsService,
+  })
+  registerAppointmentActionsRoute(app, {
+    requireJwt,
+    services: overrides.appointmentsService,
+  })
+  registerDoctorAppointmentsRoute(app, {
+    requireJwt,
+    services: overrides.appointmentsService,
+  })
 
-  try {
-    request.auth = jwt.verify(token, JWT_SECRET_KEY, { algorithms: ['HS256'] })
-    return next()
-  } catch {
-    return response
-      .status(401)
-      .json({ message: 'Session invalide ou expirée.' })
-  }
+  app.use(
+    [
+      '/appointments',
+      '/appointments/*',
+      '/availabilitySlots',
+      '/availabilitySlots/*',
+    ],
+    (request, response, next) => {
+      if (
+        request.method === 'GET' ||
+        request.method === 'HEAD' ||
+        request.method === 'OPTIONS'
+      ) {
+        return next()
+      }
+
+      return response.status(405).json({
+        message:
+          'Utilisez une route /api métier pour modifier les rendez-vous ou les créneaux.',
+      })
+    },
+  )
+
+  app.use(router)
+
+  // Gestionnaire d'erreur centralisé : toute erreur passée à next(error)
+  // dans une route métier finit ici avec un format JSON cohérent.
+  app.use(errorHandler)
+
+  return app
 }
 
-const plannedBusinessRoutes = [
-  ['post', '/api/book'],
-  ['patch', '/api/appointments/:id/confirm'],
-  ['patch', '/api/appointments/:id/refuse'],
-  ['patch', '/api/appointments/:id/cancel'],
-  ['get', '/api/doctor/appointments'],
-]
-
-plannedBusinessRoutes.forEach(([method, route]) => {
-  app[method](route, requireJwt, (_request, response) => {
-    response.status(501).json({
-      message:
-        'Route métier préparée mais non implémentée dans le socle initial.',
-    })
+// Ne démarre le serveur que si ce fichier est exécuté directement
+// (`node server.js`), pas quand il est importé par les tests.
+if (require.main === module) {
+  const port = Number(process.env.PORT || 3001)
+  createApp().listen(port, () => {
+    console.log(`API Munganga disponible sur http://localhost:${port}`)
   })
-})
+}
 
-app.use(
-  [
-    '/appointments',
-    '/appointments/*',
-    '/availabilitySlots',
-    '/availabilitySlots/*',
-  ],
-  (request, response, next) => {
-    if (
-      request.method === 'GET' ||
-      request.method === 'HEAD' ||
-      request.method === 'OPTIONS'
-    ) {
-      return next()
-    }
-
-    return response.status(405).json({
-      message:
-        'Utilisez une route /api métier pour modifier les rendez-vous ou les créneaux.',
-    })
-  },
-)
-
-app.use(router)
-
-app.listen(port, () => {
-  console.log(`API Munganga disponible sur http://localhost:${port}`)
-})
+module.exports = { createApp }
