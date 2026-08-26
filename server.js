@@ -17,7 +17,11 @@ const {
 // (plutôt qu'exécuté directement au chargement du fichier) pour que les
 // tests HTTP puissent démarrer un serveur isolé sur une base de test et un
 // port de test, sans dupliquer le branchement des routes ni des middlewares.
-function createApp(dbPath = path.join(__dirname, 'db.json')) {
+//
+// `overrides.appointmentsService`, si fourni, remplace le vrai service dans
+// toutes les routes métier — utilisé par les tests pour espionner les
+// arguments reçus par une fonction encore non implémentée (ex. cancel).
+function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
   const app = jsonServer.create()
   const router = jsonServer.router(dbPath)
   const defaults = jsonServer.defaults()
@@ -39,9 +43,20 @@ function createApp(dbPath = path.join(__dirname, 'db.json')) {
 
   // Routes métier : chaque module s'enregistre lui-même sur `app` et reçoit
   // le middleware requireJwt centralisé en dépendance (voir issue #7).
-  registerBookRoute(app, { requireJwt })
-  registerAppointmentActionsRoute(app, { requireJwt })
-  registerDoctorAppointmentsRoute(app, { requireJwt })
+  // `services` reste undefined en production : chaque route retombe alors
+  // sur son import par défaut du vrai appointmentsService.
+  registerBookRoute(app, {
+    requireJwt,
+    services: overrides.appointmentsService,
+  })
+  registerAppointmentActionsRoute(app, {
+    requireJwt,
+    services: overrides.appointmentsService,
+  })
+  registerDoctorAppointmentsRoute(app, {
+    requireJwt,
+    services: overrides.appointmentsService,
+  })
 
   app.use(
     [

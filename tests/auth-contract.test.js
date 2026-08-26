@@ -29,9 +29,9 @@ function signTokenFor(userId, email) {
   return jwt.sign({ email }, JWT_SECRET_KEY, { subject: String(userId) })
 }
 
-async function startTestServer() {
+async function startTestServer(overrides = {}) {
   const dbPath = createTestDbPath()
-  const app = createApp(dbPath)
+  const app = createApp(dbPath, overrides)
 
   return new Promise((resolve) => {
     // Port 0 : le système attribue un port libre, pour ne jamais entrer
@@ -127,22 +127,50 @@ test('POST /api/book utilise le véritable userId du patient connecté', async (
   }
 })
 
-test('PATCH /api/appointments/:id/cancel utilise le véritable userId du patient', async () => {
-  const { baseUrl, close, dbPath } = await startTestServer()
+test('PATCH /api/appointments/:id/cancel transmet le véritable userId au service', async () => {
+  // cancelAppointment n'est pas encore implémentée (issue #11) : c'est un
+  // stub qui renvoie toujours 501, quels que soient ses arguments. Un test
+  // qui se contente de vérifier le code 501 ne prouverait donc rien sur
+  // l'identité transmise — il resterait vert même si la route repassait
+  // accidentellement `request.auth.id` (undefined) au lieu de `userId`.
+  //
+  // On injecte ici un faux service qui espionne ses arguments et répond
+  // avec succès, pour observer précisément ce que la route lui transmet.
+  const realAppointmentsService = require('../server/services/appointmentsService')
+  const calls = []
+  const fakeAppointmentsService = {
+    ...realAppointmentsService,
+    cancelAppointment(_db, patientId, appointmentId) {
+      calls.push({ patientId, appointmentId })
+      return {
+        id: Number(appointmentId),
+        userId: patientId,
+        status: 'cancelled',
+      }
+    },
+  }
+
+  const { baseUrl, close, dbPath } = await startTestServer({
+    appointmentsService: fakeAppointmentsService,
+  })
 
   try {
     const token = signTokenFor(1, 'alice.patient@munganga.cg')
 
-    // cancelAppointment n'est pas encore implémentée (issue #11) : on
-    // vérifie ici que l'identité du patient est bien résolue (pas de
-    // TypeError sur un userId undefined) et que la requête atteint le
-    // service avec 501, pas une erreur d'authentification.
     const response = await fetch(`${baseUrl}/api/appointments/1/cancel`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    assert.equal(response.status, 501)
+    assert.equal(response.status, 200)
+    const appointment = await response.json()
+    assert.equal(appointment.userId, 1)
+
+    // L'assertion demandée par la review : le service a bien été appelé
+    // avec userId === 1 (l'id d'Alice), pas request.auth.id (undefined
+    // avec la forme réelle du JWT) ni une autre valeur accidentelle.
+    assert.equal(calls.length, 1)
+    assert.equal(calls[0].patientId, 1)
   } finally {
     await close()
     fs.rmSync(dbPath, { force: true })
