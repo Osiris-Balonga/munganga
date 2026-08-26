@@ -1,7 +1,26 @@
-export const quickStartExample = `import { Button, SelectField } from '../design-system'
-import { DoctorCard } from '../components/domain'
+export const architectureExample = `// src/routes/doctors/index.jsx
+import { createFileRoute } from '@tanstack/react-router'
+import { DoctorsDirectory } from '../../features/doctors'
 
-export function DoctorsPage() {
+export const Route = createFileRoute('/doctors/')({
+  component: DoctorsDirectory,
+})
+
+// src/features/doctors/DoctorsDirectory.jsx
+import { DoctorCard } from '../../components/domain'
+
+export function DoctorsDirectory() {
+  const { data: doctors } = useDoctors()
+  return doctors.map((doctor) => (
+    <DoctorCard doctor={doctor} key={doctor.id} />
+  ))
+}`
+
+export const quickStartExample = `// Depuis un composant de feature
+import { Button, SelectField } from '../../design-system'
+import { DoctorCard } from '../../components/domain'
+
+export function DoctorsDirectory() {
   return <DoctorCard doctor={doctor} />
 }`
 

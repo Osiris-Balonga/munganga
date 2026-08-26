@@ -13,7 +13,7 @@ import {
   SwitchField,
   Tabs,
   TextField,
-} from '../design-system'
+} from '../../design-system'
 import {
   AppointmentCard,
   ClinicCard,
@@ -21,15 +21,16 @@ import {
   RequestCard,
   ScheduleEvent,
   TimeSlot,
-} from '../components/domain'
+} from '../../components/domain'
 import {
   DesktopHeader,
   MobileBottomNav,
   MobileTopBar,
-} from '../components/navigation/AppNavigation'
-import { CodeExample } from './ui-kit/CodeExample'
+} from '../../components/navigation/AppNavigation'
+import { CodeExample } from './CodeExample'
 import {
   actionsExample,
+  architectureExample,
   appointmentExample,
   clinicCardExample,
   doctorCardExample,
@@ -37,7 +38,7 @@ import {
   fieldsExample,
   navigationExample,
   quickStartExample,
-} from './ui-kit/examples'
+} from './examples'
 
 const doctors = [
   {
@@ -152,6 +153,39 @@ export function UiKitPage() {
           parcours patient, médecin et visiteur.
         </p>
       </header>
+
+      <Section
+        title="Où placer le code"
+        description="Une route décrit l’URL et assemble une feature. La feature porte le comportement métier et réutilise les composants communs."
+      >
+        <div className="ui-kit-guidelines">
+          <div>
+            <strong>Route légère</strong>
+            <span>
+              Déclarez l’URL, les guards et le composant de page dans
+              src/routes.
+            </span>
+          </div>
+          <div>
+            <strong>Logique dans la feature</strong>
+            <span>
+              Placez formulaires, hooks et appels métier dans
+              src/features/&lt;domaine&gt;.
+            </span>
+          </div>
+          <div>
+            <strong>Interface partagée</strong>
+            <span>
+              Réutilisez components/domain et design-system avant de créer du
+              nouveau HTML.
+            </span>
+          </div>
+        </div>
+        <CodeExample
+          code={architectureExample}
+          title="Route → feature → composants"
+        />
+      </Section>
 
       <Section
         title="Prise en main"

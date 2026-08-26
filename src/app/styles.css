@@ -2,7 +2,7 @@
 @import '../design-system/components.css';
 @import '../components/domain/domain-components.css';
 @import '../components/navigation/navigation.css';
-@import '../routes/ui-kit.css';
+@import '../routes/-ui-kit/ui-kit.css';
 
 .app-shell {
   min-height: 100vh;

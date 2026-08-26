@@ -5,7 +5,13 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   {
-    ignores: ['coverage/**', 'dist/**', 'node_modules/**'],
+    ignores: [
+      'coverage/**',
+      'dist/**',
+      'docs/munganga-ui-prototype/**',
+      'node_modules/**',
+      'src/routeTree.gen.js',
+    ],
   },
   js.configs.recommended,
   {
@@ -25,6 +31,18 @@ export default [
     rules: {
       ...reactHooks.configs.flat['recommended-latest'].rules,
       ...reactRefresh.configs.vite.rules,
+      'react-refresh/only-export-components': [
+        'error',
+        { allowExportNames: ['Route'] },
+      ],
+    },
+  },
+  {
+    files: ['src/routes/**/*.{js,jsx}'],
+    rules: {
+      // TanStack Router route modules export `Route` alongside their page
+      // component and manage their own HMR boundary through the Vite plugin.
+      'react-refresh/only-export-components': 'off',
     },
   },
   {
