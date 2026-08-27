@@ -2,3 +2,7 @@ coverage/
 dist/
 node_modules/
 pnpm-lock.yaml
+src/routeTree.gen.js
+docs/munganga-ui-prototype/
+docs/munganga-wireframes.html
+docs/Munganga_Guide_Workflow_Equipe.docx

@@ -21,7 +21,15 @@ pnpm test
 pnpm build
 ```
 
+Avant de coder, consulter le
+[manuel développeur](docs/development/README.md) et `/ui-kit`. Une nouvelle
+convention d’architecture doit être documentée dans la même pull request.
+
 La description doit référencer l’issue avec `Closes #<numéro>`. Une autre personne relit la pull request. Les conversations doivent être résolues avant le squash merge.
+
+La review vérifie aussi que la route reste légère, que la logique métier est
+placée dans une feature ou un service, et qu’aucun composant existant du UI kit
+n’est dupliqué.
 
 ## Commits
 

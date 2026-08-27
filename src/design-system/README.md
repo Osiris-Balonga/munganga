@@ -1,5 +1,9 @@
 # Design system Munganga
 
+Le catalogue interactif et les exemples copiables sont disponibles sur
+`/ui-kit`. Les règles d’intégration avec les routes et les features sont décrites
+dans `docs/development/FRONTEND_GUIDE.md`.
+
 Ce dossier contient la référence d’interface commune aux parcours visiteur, patient et médecin. La page locale `/ui-kit` permet de contrôler visuellement les composants et leurs états, puis de copier leurs exemples d’utilisation directement dans le projet.
 
 ## Principes
