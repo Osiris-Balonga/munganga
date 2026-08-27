@@ -5,9 +5,10 @@ const { ApiError } = require('../utils/apiError')
 // Chaque fonction manipule `db` (app.db, l'accès direct à db.json) et ne
 // fait jamais d'appel HTTP interne — c'est une règle de l'issue #7.
 //
-// bookAppointment est implémentée (issue #8). Les autres fonctions restent
-// des squelettes ; la logique arrive avec les issues #9 (confirm),
-// #10 (refuse), #11 (cancel), #12 (liste médecin) et #13 (créneaux).
+// bookAppointment (issue #8) et confirmAppointment (issue #9) sont
+// implémentées. Les autres fonctions restent des squelettes ; la logique
+// arrive avec les issues #10 (refuse), #11 (cancel), #12 (liste médecin)
+// et #13 (créneaux).
 
 // Réserve un créneau pour le patient connecté (issue #8).
 //
@@ -66,11 +67,48 @@ function findDoctorClinicId(db, doctorId) {
   return doctor ? doctor.clinicId : null
 }
 
-function confirmAppointment(_db, _doctor, _appointmentId) {
-  throw new ApiError(
-    501,
-    'Route métier préparée mais non implémentée dans le socle initial.',
-  )
+// Confirme un rendez-vous en attente (issue #9).
+//
+// `doctor` est le profil médecin déjà résolu par requireDoctorProfile,
+// PAS un simple id — ça permet de vérifier que le médecin connecté est
+// bien celui associé au rendez-vous, sans requête supplémentaire.
+function confirmAppointment(db, doctor, appointmentId) {
+  const appointment = findAppointmentOrThrow(db, appointmentId)
+
+  // Seul le médecin associé au rendez-vous peut le confirmer — pas un
+  // autre médecin qui devinerait ou changerait l'id dans l'URL.
+  if (appointment.doctorId !== doctor.id) {
+    throw new ApiError(403, "Ce rendez-vous n'est pas associé à ce médecin.")
+  }
+
+  if (appointment.status !== 'pending') {
+    throw new ApiError(
+      409,
+      `Ce rendez-vous ne peut pas être confirmé depuis son statut actuel (${appointment.status}).`,
+    )
+  }
+
+  // Le créneau reste "unavailable" : seul le statut du rendez-vous change,
+  // pas de mise à jour de availabilitySlots ici.
+  return db
+    .get('appointments')
+    .find({ id: appointment.id })
+    .assign({ status: 'confirmed', updatedAt: new Date().toISOString() })
+    .write()
+}
+
+// Retrouve un rendez-vous par id, ou lève une 404. Le paramètre d'URL
+// (request.params.id) arrive toujours en chaîne de caractères ; on le
+// convertit ici pour matcher les id numériques stockés dans db.json.
+function findAppointmentOrThrow(db, appointmentId) {
+  const id = Number(appointmentId)
+  const appointment = db.get('appointments').find({ id }).value()
+
+  if (!appointment) {
+    throw new ApiError(404, 'Rendez-vous introuvable.')
+  }
+
+  return appointment
 }
 
 function refuseAppointment(_db, _doctor, _appointmentId) {
