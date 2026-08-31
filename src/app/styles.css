@@ -39,9 +39,22 @@
   text-transform: uppercase;
 }
 
+.app-shell--doctor {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
 @media (max-width: 760px) {
   .app-shell main {
     min-height: calc(100vh - 8.5rem);
     padding-bottom: 4.5rem;
+  }
+
+  .app-shell--doctor {
+    height: auto;
+    max-height: none;
+    min-height: 100dvh;
+    overflow: visible;
   }
 }

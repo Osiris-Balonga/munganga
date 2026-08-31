@@ -45,6 +45,12 @@ const navigationByMode = {
   ],
   doctor: [
     {
+      label: 'Tableau de bord',
+      shortLabel: 'Accueil',
+      to: '/doctor',
+      icon: House,
+    },
+    {
       label: 'Agenda',
       shortLabel: 'Agenda',
       to: '/doctor/agenda',

@@ -1,7 +1,8 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { requireRole } from '../../lib/auth/auth'
+import { createFileRoute } from '@tanstack/react-router'
+import { DoctorWorkspaceLayout } from '../../features/doctor-workspace/DoctorWorkspaceLayout'
+import { ensureDoctorPreviewSession } from '../../features/doctor-workspace/previewSession'
 
 export const Route = createFileRoute('/doctor')({
-  beforeLoad: () => requireRole('doctor'),
-  component: Outlet,
+  beforeLoad: () => ensureDoctorPreviewSession(),
+  component: DoctorWorkspaceLayout,
 })

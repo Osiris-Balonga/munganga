@@ -14,6 +14,7 @@
   --color-ink-muted: #6a6e83;
   --color-surface: #ffffff;
   --color-surface-subtle: #f7f8fc;
+  --color-surface-workspace: #f4f7fe;
   --color-surface-brand: var(--color-brand-50);
   --color-border: #dedfea;
   --color-border-strong: #c4c5d6;
@@ -29,10 +30,13 @@
 
   --focus-ring: 0 0 0 3px rgb(36 82 202 / 22%);
   --shadow-float: 0 12px 32px rgb(26 27 35 / 12%);
+  --shadow-card: 0 10px 30px rgb(36 82 202 / 7%);
 
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
   --radius-pill: 999px;
 
   --space-1: 0.25rem;

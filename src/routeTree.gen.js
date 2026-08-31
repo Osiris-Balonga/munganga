@@ -18,7 +18,12 @@ import { Route as DoctorRouteRouteImport } from './routes/doctor/route'
 import { Route as ClinicsRouteRouteImport } from './routes/clinics/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DoctorsIndexRouteImport } from './routes/doctors/index'
+import { Route as DoctorIndexRouteImport } from './routes/doctor/index'
 import { Route as ClinicsIndexRouteImport } from './routes/clinics/index'
+import { Route as DoctorSupportRouteImport } from './routes/doctor/support'
+import { Route as DoctorStatsRouteImport } from './routes/doctor/stats'
+import { Route as DoctorPatientsRouteImport } from './routes/doctor/patients'
+import { Route as DoctorMessagesRouteImport } from './routes/doctor/messages'
 import { Route as DoctorAvailabilityRouteImport } from './routes/doctor/availability'
 import { Route as DoctorAppointmentsRouteImport } from './routes/doctor/appointments'
 import { Route as DoctorAgendaRouteImport } from './routes/doctor/agenda'
@@ -75,10 +80,35 @@ const DoctorsIndexRoute = DoctorsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DoctorsRouteRoute,
 })
+const DoctorIndexRoute = DoctorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DoctorRouteRoute,
+})
 const ClinicsIndexRoute = ClinicsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ClinicsRouteRoute,
+})
+const DoctorSupportRoute = DoctorSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => DoctorRouteRoute,
+})
+const DoctorStatsRoute = DoctorStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => DoctorRouteRoute,
+})
+const DoctorPatientsRoute = DoctorPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => DoctorRouteRoute,
+})
+const DoctorMessagesRoute = DoctorMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => DoctorRouteRoute,
 })
 const DoctorAvailabilityRoute = DoctorAvailabilityRouteImport.update({
   id: '/availability',
@@ -147,6 +177,11 @@ const DoctorRouteRouteChildren = {
   DoctorAgendaRoute: DoctorAgendaRoute,
   DoctorAppointmentsRoute: DoctorAppointmentsRoute,
   DoctorAvailabilityRoute: DoctorAvailabilityRoute,
+  DoctorMessagesRoute: DoctorMessagesRoute,
+  DoctorPatientsRoute: DoctorPatientsRoute,
+  DoctorStatsRoute: DoctorStatsRoute,
+  DoctorSupportRoute: DoctorSupportRoute,
+  DoctorIndexRoute: DoctorIndexRoute,
 }
 
 const DoctorRouteRouteWithChildren = DoctorRouteRoute._addFileChildren(
