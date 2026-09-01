@@ -60,7 +60,7 @@ export function LoginForm() {
 
   return (
     <section className="login-container">
-      <form onSubmit={handleSubmit} className='login-form'>
+      <form onSubmit={handleSubmit} className="login-form">
         <h1>Connexion</h1>
         <p className="login-form__description">
           Accédez à votre espace avec vos identifiants.
