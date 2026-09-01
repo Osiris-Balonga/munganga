@@ -5,10 +5,10 @@ const { ApiError } = require('../utils/apiError')
 // Chaque fonction manipule `db` (app.db, l'accès direct à db.json) et ne
 // fait jamais d'appel HTTP interne — c'est une règle de l'issue #7.
 //
-// bookAppointment (issue #8), confirmAppointment (issue #9) et
-// refuseAppointment (issue #10) sont implémentées. Les autres fonctions
-// restent des squelettes ; la logique arrive avec les issues #11 (cancel),
-// #12 (liste médecin) et #13 (créneaux).
+// bookAppointment (issue #8), confirmAppointment (issue #9),
+// refuseAppointment (issue #10) et cancelAppointment (issue #11) sont
+// implémentées. La logique restante arrive avec les issues #12 (liste
+// médecin) et #13 (créneaux).
 
 // Réserve un créneau pour le patient connecté (issue #8).
 //
@@ -147,11 +147,55 @@ function refuseAppointment(db, doctor, appointmentId) {
   return updatedAppointment
 }
 
-function cancelAppointment(_db, _patientId, _appointmentId) {
-  throw new ApiError(
-    501,
-    'Route métier préparée mais non implémentée dans le socle initial.',
-  )
+// Annule un rendez-vous, à la demande du patient propriétaire (issue #11).
+//
+// Contrairement à confirm/refuse (réservés au médecin), c'est ici le
+// patient (appointment.userId) qui doit être le demandeur. Un rendez-vous
+// `pending` OU `confirmed` peut être annulé, mais seulement si le créneau
+// n'est pas déjà passé — on ne permet pas d'annuler après coup un
+// rendez-vous déjà entamé ou terminé.
+function cancelAppointment(db, patientId, appointmentId) {
+  const appointment = findAppointmentOrThrow(db, appointmentId)
+
+  if (appointment.userId !== patientId) {
+    throw new ApiError(403, 'Ce rendez-vous ne vous appartient pas.')
+  }
+
+  if (!['pending', 'confirmed'].includes(appointment.status)) {
+    throw new ApiError(
+      409,
+      `Ce rendez-vous ne peut pas être annulé depuis son statut actuel (${appointment.status}).`,
+    )
+  }
+
+  const slot = db
+    .get('availabilitySlots')
+    .find({ id: appointment.slotId })
+    .value()
+
+  if (slot && new Date(slot.startAt).getTime() <= Date.now()) {
+    throw new ApiError(
+      409,
+      'Ce rendez-vous ne peut plus être annulé : le créneau est déjà passé.',
+    )
+  }
+
+  const updatedAt = new Date().toISOString()
+
+  const updatedAppointment = db
+    .get('appointments')
+    .find({ id: appointment.id })
+    .assign({ status: 'cancelled', updatedAt })
+    .write()
+
+  if (slot) {
+    db.get('availabilitySlots')
+      .find({ id: slot.id })
+      .assign({ status: 'available', appointmentId: null })
+      .write()
+  }
+
+  return updatedAppointment
 }
 
 function listDoctorAppointments(_db, _doctor) {
