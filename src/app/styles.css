@@ -3,6 +3,7 @@
 @import '../components/domain/domain-components.css';
 @import '../components/navigation/navigation.css';
 @import '../routes/-ui-kit/ui-kit.css';
+@import '../features/auth/auth.css';
 
 .app-shell {
   min-height: 100vh;

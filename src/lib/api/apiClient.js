@@ -21,6 +21,6 @@ export async function apiClient(path, options = {}) {
   const payload =
     response.status === 204 ? null : await response.json().catch(() => null)
   if (!response.ok)
-    throw new Error(payload?.message || `Erreur API (${response.status})`)
+    throw new Error(payload || `Erreur API (${response.status})`)
   return payload
 }
