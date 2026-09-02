@@ -31,6 +31,33 @@ function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
   app.use(defaults)
   app.use(jsonServer.bodyParser)
 
+  // Bloquer les mutations CRUD avant la réécriture des permissions auth.
+  // Sinon /appointments devient /600/appointments et contourne ce contrat
+  // métier, en renvoyant un 403 dépendant de json-server-auth au lieu du 405
+  // stable attendu par les clients.
+  app.use(
+    [
+      '/appointments',
+      '/appointments/*',
+      '/availabilitySlots',
+      '/availabilitySlots/*',
+    ],
+    (request, response, next) => {
+      if (
+        request.method === 'GET' ||
+        request.method === 'HEAD' ||
+        request.method === 'OPTIONS'
+      ) {
+        return next()
+      }
+
+      return response.status(405).json({
+        message:
+          'Utilisez une route /api métier pour modifier les rendez-vous ou les créneaux.',
+      })
+    },
+  )
+
   // Ordre obligatoire : règles de réécriture, authentification, puis router.
   app.use(auth.rewriter(rules))
 
@@ -57,29 +84,6 @@ function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
     requireJwt,
     services: overrides.appointmentsService,
   })
-
-  app.use(
-    [
-      '/appointments',
-      '/appointments/*',
-      '/availabilitySlots',
-      '/availabilitySlots/*',
-    ],
-    (request, response, next) => {
-      if (
-        request.method === 'GET' ||
-        request.method === 'HEAD' ||
-        request.method === 'OPTIONS'
-      ) {
-        return next()
-      }
-
-      return response.status(405).json({
-        message:
-          'Utilisez une route /api métier pour modifier les rendez-vous ou les créneaux.',
-      })
-    },
-  )
 
   app.use(router)
 
