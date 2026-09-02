@@ -71,3 +71,9 @@
 .login-skeleton__button {
   height: 2.75rem;
 }
+
+.login-form__error{
+    color: var(--color-danger);
+    font-size: var(--text-md);
+    margin: 0;
+}

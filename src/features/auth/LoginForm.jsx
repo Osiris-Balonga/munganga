@@ -11,8 +11,7 @@ export function LoginForm() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsHydrating(false), 400)
-    return () => clearTimeout(timer)
+    requestAnimationFrame(() => setIsHydrating(false))
   }, [])
 
   const loginMutation = useMutation({
@@ -72,20 +71,26 @@ export function LoginForm() {
             type="email"
             name="email"
             required
+            autoComplete="email"
             placeholder="Votre adresse email"
             value={email}
             onChange={handleEmailChange}
-            error={fieldError}
           />
           <TextField
             label="Mot de passe"
             type="password"
             name="password"
+            required
+            autoComplete="current-password"
             placeholder="Votre mot de passe"
             value={password}
             onChange={handlePasswordChange}
-            error={fieldError}
           />
+          {fieldError ? (
+            <p className="login-form__error" role="alert">
+              {fieldError}
+            </p>
+          ) : null}
 
           <Button type="submit" disabled={loginMutation.isPending}>
             {loginMutation.isPending ? 'Connexion…' : 'Connexion'}
