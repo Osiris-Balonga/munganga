@@ -12,6 +12,9 @@ const {
 const {
   registerDoctorAppointmentsRoute,
 } = require('./server/routes/doctorAppointmentsRoute')
+const {
+  createSimulatedNotificationService,
+} = require('./server/services/notificationService')
 
 // Construit l'application Express/json-server. Extrait dans une fonction
 // (plutôt qu'exécuté directement au chargement du fichier) pour que les
@@ -41,6 +44,9 @@ function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
 
   app.use(auth)
 
+  const notificationService =
+    overrides.notificationService || createSimulatedNotificationService()
+
   // Routes métier : chaque module s'enregistre lui-même sur `app` et reçoit
   // le middleware requireJwt centralisé en dépendance (voir issue #7).
   // `services` reste undefined en production : chaque route retombe alors
@@ -48,10 +54,12 @@ function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
   registerBookRoute(app, {
     requireJwt,
     services: overrides.appointmentsService,
+    notificationService,
   })
   registerAppointmentActionsRoute(app, {
     requireJwt,
     services: overrides.appointmentsService,
+    notificationService,
   })
   registerDoctorAppointmentsRoute(app, {
     requireJwt,

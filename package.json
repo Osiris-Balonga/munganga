@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "notifications:demo": "node scripts/demo-notifications.js"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

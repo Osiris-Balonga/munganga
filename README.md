@@ -92,6 +92,23 @@ Routes métier protégées :
 - `PATCH /api/appointments/:id/cancel`
 - `GET /api/doctor/appointments`
 
+## Notifications simulées
+
+Les transitions réservation, confirmation, refus et annulation publient des
+événements dans un service de notification isolé. Le canal reste
+exclusivement `simulated` : aucun SMS, e-mail ou fournisseur externe n'est
+appelé. Le service déduplique également les rappels envoyés au patient et au
+médecin la veille du rendez-vous, selon le fuseau `Africa/Brazzaville`.
+
+Pour démontrer le rappel de la veille avec les données locales :
+
+```bash
+pnpm notifications:demo
+```
+
+La commande affiche les messages qui auraient été envoyés, sans modifier
+`db.json`.
+
 `POST /api/book` est implémentée. Les autres actions restent des points
 d’extension et peuvent répondre `501 Not Implemented` tant que leur issue n’est
 pas livrée. Les mutations directes de `/appointments` et

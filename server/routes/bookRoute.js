@@ -12,7 +12,7 @@ const appointmentsService = require('../services/appointmentsService')
 // de la logique métier.
 function registerBookRoute(
   app,
-  { requireJwt, services = appointmentsService },
+  { requireJwt, services = appointmentsService, notificationService },
 ) {
   app.post('/api/book', requireJwt, (request, response, next) => {
     try {
@@ -21,6 +21,11 @@ function registerBookRoute(
         app.db,
         patientId,
         request.body,
+      )
+      notificationService.recordAppointmentEvent(
+        app.db,
+        'appointment.booked',
+        appointment,
       )
       return response.status(201).json(appointment)
     } catch (error) {
