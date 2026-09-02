@@ -13,7 +13,7 @@ const { requireDoctorProfile } = require('../services/doctorsService')
 // "cancel").
 function registerAppointmentActionsRoute(
   app,
-  { requireJwt, services = appointmentsService },
+  { requireJwt, services = appointmentsService, notificationService },
 ) {
   app.patch(
     '/api/appointments/:id/confirm',
@@ -25,6 +25,11 @@ function registerAppointmentActionsRoute(
           app.db,
           doctor,
           request.params.id,
+        )
+        notificationService.recordAppointmentEvent(
+          app.db,
+          'appointment.confirmed',
+          appointment,
         )
         return response.status(200).json(appointment)
       } catch (error) {
@@ -44,6 +49,11 @@ function registerAppointmentActionsRoute(
           doctor,
           request.params.id,
         )
+        notificationService.recordAppointmentEvent(
+          app.db,
+          'appointment.refused',
+          appointment,
+        )
         return response.status(200).json(appointment)
       } catch (error) {
         return next(error)
@@ -61,6 +71,11 @@ function registerAppointmentActionsRoute(
           app.db,
           patientId,
           request.params.id,
+        )
+        notificationService.recordAppointmentEvent(
+          app.db,
+          'appointment.cancelled',
+          appointment,
         )
         return response.status(200).json(appointment)
       } catch (error) {
