@@ -77,3 +77,148 @@
   font-size: var(--text-md);
   margin: 0;
 }
+
+.signup-container {
+  min-height: 90vh;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: clamp(var(--space-8), 5vw, var(--space-16));
+}
+
+.signup-header {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.signup-header h1 {
+  margin: 0;
+  font-size: var(--text-3xl);
+  line-height: var(--line-tight);
+}
+
+.signup-description {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-md);
+  line-height: var(--line-relaxed);
+}
+
+.signup-form {
+  display: grid;
+  gap: var(--space-6);
+  width: 100%;
+  padding: clamp(var(--space-6), 5vw, var(--space-8));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: none;
+}
+
+.signup-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.signup-step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.signup-step__dot,
+.signup-step__icon {
+  display: grid;
+  place-items: center;
+  color: var(--color-border-strong);
+}
+
+.signup-step--active .signup-step__dot,
+.signup-step--active .signup-step__icon,
+.signup-step--completed .signup-step__dot,
+.signup-step--completed .signup-step__icon {
+  color: var(--color-brand-600);
+}
+
+.signup-step--active .signup-step__label,
+.signup-step--completed .signup-step__label {
+  color: var(--color-ink);
+}
+
+.signup-step__label {
+  white-space: nowrap;
+}
+
+.signup-step__fields {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.signup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.signup-form__error {
+  color: var(--color-danger);
+  font-size: var(--text-md);
+  margin: 0;
+}
+
+.signup-form--skeleton > .ds-skeleton {
+  width: 100%;
+}
+
+.signup-skeleton__title {
+  width: 55%;
+  height: 2.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.signup-skeleton__description {
+  height: 1.25rem;
+}
+
+.signup-skeleton__steps {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.signup-skeleton__step {
+  width: 6rem;
+  height: 1rem;
+}
+
+.signup-skeleton__field {
+  height: 3rem;
+}
+
+.signup-skeleton__button {
+  height: 2.75rem;
+}
+
+@media (min-width: 768px) {
+  .signup-container {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--space-16);
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-steps {
+    flex-wrap: wrap;
+  }
+}

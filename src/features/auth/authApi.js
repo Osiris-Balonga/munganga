@@ -8,6 +8,15 @@ const LOGIN_ERROR_TRANSLATIONS = {
     'Veuillez renseigner votre email et votre mot de passe.',
 }
 
+const REGISTER_ERROR_TRANSLATIONS = {
+  'Email and password are required':
+    'Veuillez renseigner votre email et votre mot de passe.',
+  'Email format is invalid': "L'adresse email est invalide.",
+  'Password is too short':
+    'Le mot de passe doit contenir au moins 4 caractères.',
+  'Email already exists': 'Un compte existe déjà avec cette adresse email.',
+}
+
 function translateLoginError(error) {
   const translatedMessage = LOGIN_ERROR_TRANSLATIONS[error.message]
 
@@ -18,6 +27,15 @@ function translateLoginError(error) {
   return error
 }
 
+function translateRegisterError(error) {
+  const translatedMessage = REGISTER_ERROR_TRANSLATIONS[error.message]
+
+  if (translatedMessage) {
+    return new Error(translatedMessage)
+  }
+
+  return error
+}
 export async function login(credentials) {
   try {
     const session = await apiClient('/login', {
@@ -33,14 +51,18 @@ export async function login(credentials) {
 }
 
 export async function registerPatient(formData) {
-  const session = await apiClient('/register', {
-    method: 'POST',
-    body: JSON.stringify({
-      ...formData,
-      role: 'patient',
-    }),
-  })
+  try {
+    const session = await apiClient('/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...formData,
+        role: 'patient',
+      }),
+    })
 
-  saveSession(session)
-  return session
+    saveSession(session)
+    return session
+  } catch (error) {
+    throw translateRegisterError(error)
+  }
 }
