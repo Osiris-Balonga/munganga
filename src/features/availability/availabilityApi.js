@@ -1,13 +1,7 @@
 import { apiClient } from '../../lib/api/apiClient'
-import { getAccessToken } from '../../lib/auth/tokenStorage'
 
 export const getAvailableSlots = (doctorId) =>
   apiClient(`/availabilitySlots?doctorId=${doctorId}&status=available`)
-
-export function canUseDoctorAvailabilityApi() {
-  const token = getAccessToken()
-  return Boolean(token) && token !== 'preview-doctor'
-}
 
 export const listDoctorAvailabilitySlots = () =>
   apiClient('/api/doctor/availability-slots')

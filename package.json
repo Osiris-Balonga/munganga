@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "validate:doctor-workspace": "node scripts/validate-doctor-workspace.js"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

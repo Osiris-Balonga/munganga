@@ -12,6 +12,7 @@ import { Link } from '@tanstack/react-router'
 import { EmptyState, StatusBadge } from '../../design-system'
 import { InitialsAvatar } from '../../components/domain'
 import { AppointmentDetailDialog } from './AppointmentDetailDialog'
+import { DoctorDataState } from './DoctorDataState'
 import { KpiCards } from './KpiCards'
 import { PageBanner } from './PageBanner'
 import { SegmentedControl } from './SegmentedControl'
@@ -248,6 +249,9 @@ function FreeSlotsCard({ date, appointments, weeklyAvailability }) {
 export function DoctorAgendaView() {
   const {
     appointments,
+    appointmentsLoading,
+    appointmentsError,
+    refetchAppointments,
     weeklyAvailability,
     selectedDate,
     setSelectedDate,
@@ -364,229 +368,240 @@ export function DoctorAgendaView() {
   )
 
   return (
-    <section className="kb-page">
-      <PageBanner
-        action={
-          <Link className="kb-banner__cta" to="/doctor/availability">
-            Gérer les créneaux
-          </Link>
-        }
-        description="Visualisez vos rendez-vous, créneaux libres et journées occupées."
-        eyebrow="Organisation de votre journée"
-        side={
-          <SegmentedControl
-            ariaLabel="Vue de l’agenda"
-            items={viewItems}
-            onChange={setView}
-            value={view}
-          />
-        }
-        title="Agenda"
-      />
+    <DoctorDataState
+      error={appointmentsError}
+      isLoading={appointmentsLoading}
+      loadingLabel="Chargement de l’agenda…"
+      onRetry={refetchAppointments}
+    >
+      <section className="kb-page">
+        <PageBanner
+          action={
+            <Link className="kb-banner__cta" to="/doctor/availability">
+              Gérer les créneaux
+            </Link>
+          }
+          description="Visualisez vos rendez-vous, créneaux libres et journées occupées."
+          eyebrow="Organisation de votre journée"
+          side={
+            <SegmentedControl
+              ariaLabel="Vue de l’agenda"
+              items={viewItems}
+              onChange={setView}
+              value={view}
+            />
+          }
+          title="Agenda"
+        />
 
-      <KpiCards cards={kpiCards} />
+        <KpiCards cards={kpiCards} />
 
-      <div className="kb-workspace-grid">
-        <article className="kb-card kb-agenda kb-panel">
-          <div className="kb-agenda__bar">
-            <div className="kb-cal-nav">
-              <button
-                aria-label="Période précédente"
-                className="kb-iconbtn"
-                onClick={() =>
-                  setSelectedDate(
-                    view === 'month'
-                      ? addMonths(selectedDate, -1)
-                      : addDays(selectedDate, view === 'week' ? -7 : -1),
-                  )
-                }
-                type="button"
-              >
-                <ChevronLeft />
-              </button>
-              <strong>
-                {view === 'month'
-                  ? formatMonth(selectedDate)
-                  : formatLongDate(selectedDate)}
-              </strong>
-              <button
-                aria-label="Période suivante"
-                className="kb-iconbtn"
-                onClick={() =>
-                  setSelectedDate(
-                    view === 'month'
-                      ? addMonths(selectedDate, 1)
-                      : addDays(selectedDate, view === 'week' ? 7 : 1),
-                  )
-                }
-                type="button"
-              >
-                <ChevronRight />
-              </button>
-            </div>
-            <button
-              className="kb-text-btn"
-              onClick={() => setSelectedDate(startOfDay())}
-              type="button"
-            >
-              Aujourd’hui
-            </button>
-          </div>
-
-          {view === 'day' ? (
-            emptyDay ? (
-              <EmptyState
-                description="Cette journée n’a ni rendez-vous ni créneau ouvert."
-                title="Aucune activité sur cette date."
-              />
-            ) : (
-              <DayTimeline
-                appointments={appointments}
-                date={selectedDate}
-                onSelect={setSelectedAppointment}
-                weeklyAvailability={weeklyAvailability}
-              />
-            )
-          ) : null}
-
-          {view === 'week' ? (
-            <div className="kb-week-wrap">
-              <div className="kb-ag-week">
-                <div className="kb-ag-week__corner" />
-                {weekDays.map((day) => (
-                  <div
-                    className={`kb-ag-week__head ${isSameDay(day, selectedDate) ? 'is-current' : ''} ${isSameDay(day, startOfDay()) ? 'is-today' : ''}`}
-                    key={toDateKey(day)}
-                  >
-                    <small>{formatWeekday(day)}</small>
-                    <strong>{day.getDate()}</strong>
-                  </div>
-                ))}
-                {weekHours.map((time) => (
-                  <Fragment key={time}>
-                    <div className="kb-ag-week__time">{time}</div>
-                    {weekDays.map((day) => {
-                      const hour = Number(time.slice(0, 2))
-                      const dayEvents = getAppointmentsForDay(appointments, day)
-                        .filter(ACTIVE)
-                        .filter(
-                          (item) => new Date(item.startAt).getHours() === hour,
-                        )
-                      const event = dayEvents[0]
-                      const extra = dayEvents.length - 1
-                      const free =
-                        !event &&
-                        isSlotAvailable(
-                          weeklyAvailability,
-                          appointments,
-                          day,
-                          `${time.slice(0, 2)}:00`,
-                        )
-                      return (
-                        <div
-                          className="kb-ag-week__cell"
-                          key={`${toDateKey(day)}-${time}`}
-                        >
-                          {event ? (
-                            <button
-                              className={`kb-ag-chip kb-ag-chip--${event.status}`}
-                              onClick={() => setSelectedAppointment(event)}
-                              type="button"
-                            >
-                              <b>{formatTime(event.startAt)}</b>
-                              <span>{event.patientName}</span>
-                              {extra > 0 ? (
-                                <em className="kb-ag-chip__more">+{extra}</em>
-                              ) : null}
-                            </button>
-                          ) : free ? (
-                            <span className="kb-ag-week__free" />
-                          ) : null}
-                        </div>
-                      )
-                    })}
-                  </Fragment>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {view === 'month' ? (
-            <div className="kb-ag-month">
-              {weekLabels.map((label) => (
-                <span className="kb-ag-month__label" key={label}>
-                  {label}
-                </span>
-              ))}
-              {monthCells.map(({ day, events }) => (
+        <div className="kb-workspace-grid">
+          <article className="kb-card kb-agenda kb-panel">
+            <div className="kb-agenda__bar">
+              <div className="kb-cal-nav">
                 <button
-                  className={`kb-ag-month__cell ${day.getMonth() !== selectedDate.getMonth() ? 'is-muted' : ''} ${isSameDay(day, selectedDate) ? 'is-selected' : ''} ${isSameDay(day, startOfDay()) ? 'is-today' : ''}`}
-                  key={toDateKey(day)}
-                  onClick={() => {
-                    setSelectedDate(day)
-                    setView('day')
-                  }}
+                  aria-label="Période précédente"
+                  className="kb-iconbtn"
+                  onClick={() =>
+                    setSelectedDate(
+                      view === 'month'
+                        ? addMonths(selectedDate, -1)
+                        : addDays(selectedDate, view === 'week' ? -7 : -1),
+                    )
+                  }
                   type="button"
                 >
-                  <span className="kb-ag-month__num">
-                    <strong>{day.getDate()}</strong>
-                    {events.length ? (
-                      <em className="kb-ag-month__count">{events.length}</em>
-                    ) : null}
-                  </span>
-                  {events.slice(0, 2).map((event) => (
-                    <small
-                      className={`kb-ag-month__event is-${event.status}`}
-                      key={event.id}
-                    >
-                      {formatTime(event.startAt)} {event.patientName}
-                    </small>
-                  ))}
-                  {events.length > 2 ? (
-                    <small className="kb-ag-month__event is-more">
-                      +{events.length - 2} autre
-                      {events.length - 2 > 1 ? 's' : ''}
-                    </small>
-                  ) : null}
+                  <ChevronLeft />
                 </button>
-              ))}
+                <strong>
+                  {view === 'month'
+                    ? formatMonth(selectedDate)
+                    : formatLongDate(selectedDate)}
+                </strong>
+                <button
+                  aria-label="Période suivante"
+                  className="kb-iconbtn"
+                  onClick={() =>
+                    setSelectedDate(
+                      view === 'month'
+                        ? addMonths(selectedDate, 1)
+                        : addDays(selectedDate, view === 'week' ? 7 : 1),
+                    )
+                  }
+                  type="button"
+                >
+                  <ChevronRight />
+                </button>
+              </div>
+              <button
+                className="kb-text-btn"
+                onClick={() => setSelectedDate(startOfDay())}
+                type="button"
+              >
+                Aujourd’hui
+              </button>
             </div>
-          ) : null}
-        </article>
 
-        <aside className="kb-rail">
-          <NextAppointmentCard
-            appointment={nextAppointment}
-            onSelect={setSelectedAppointment}
-          />
-          <DaySummaryCard
-            appointments={appointments}
-            date={selectedDate}
-            freeCount={freeCount}
-          />
-          <FreeSlotsCard
-            appointments={appointments}
-            date={selectedDate}
-            weeklyAvailability={weeklyAvailability}
-          />
-        </aside>
-      </div>
+            {view === 'day' ? (
+              emptyDay ? (
+                <EmptyState
+                  description="Cette journée n’a ni rendez-vous ni créneau ouvert."
+                  title="Aucune activité sur cette date."
+                />
+              ) : (
+                <DayTimeline
+                  appointments={appointments}
+                  date={selectedDate}
+                  onSelect={setSelectedAppointment}
+                  weeklyAvailability={weeklyAvailability}
+                />
+              )
+            ) : null}
 
-      <AppointmentDetailDialog
-        appointment={selectedAppointment}
-        onConfirm={(id) => {
-          confirmAppointment(id)
-          setSelectedAppointment(null)
-        }}
-        onOpenChange={(open) => {
-          if (!open) setSelectedAppointment(null)
-        }}
-        onRefuse={(id) => {
-          refuseAppointment(id)
-          setSelectedAppointment(null)
-        }}
-        open={Boolean(selectedAppointment)}
-      />
-    </section>
+            {view === 'week' ? (
+              <div className="kb-week-wrap">
+                <div className="kb-ag-week">
+                  <div className="kb-ag-week__corner" />
+                  {weekDays.map((day) => (
+                    <div
+                      className={`kb-ag-week__head ${isSameDay(day, selectedDate) ? 'is-current' : ''} ${isSameDay(day, startOfDay()) ? 'is-today' : ''}`}
+                      key={toDateKey(day)}
+                    >
+                      <small>{formatWeekday(day)}</small>
+                      <strong>{day.getDate()}</strong>
+                    </div>
+                  ))}
+                  {weekHours.map((time) => (
+                    <Fragment key={time}>
+                      <div className="kb-ag-week__time">{time}</div>
+                      {weekDays.map((day) => {
+                        const hour = Number(time.slice(0, 2))
+                        const dayEvents = getAppointmentsForDay(
+                          appointments,
+                          day,
+                        )
+                          .filter(ACTIVE)
+                          .filter(
+                            (item) =>
+                              new Date(item.startAt).getHours() === hour,
+                          )
+                        const event = dayEvents[0]
+                        const extra = dayEvents.length - 1
+                        const free =
+                          !event &&
+                          isSlotAvailable(
+                            weeklyAvailability,
+                            appointments,
+                            day,
+                            `${time.slice(0, 2)}:00`,
+                          )
+                        return (
+                          <div
+                            className="kb-ag-week__cell"
+                            key={`${toDateKey(day)}-${time}`}
+                          >
+                            {event ? (
+                              <button
+                                className={`kb-ag-chip kb-ag-chip--${event.status}`}
+                                onClick={() => setSelectedAppointment(event)}
+                                type="button"
+                              >
+                                <b>{formatTime(event.startAt)}</b>
+                                <span>{event.patientName}</span>
+                                {extra > 0 ? (
+                                  <em className="kb-ag-chip__more">+{extra}</em>
+                                ) : null}
+                              </button>
+                            ) : free ? (
+                              <span className="kb-ag-week__free" />
+                            ) : null}
+                          </div>
+                        )
+                      })}
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {view === 'month' ? (
+              <div className="kb-ag-month">
+                {weekLabels.map((label) => (
+                  <span className="kb-ag-month__label" key={label}>
+                    {label}
+                  </span>
+                ))}
+                {monthCells.map(({ day, events }) => (
+                  <button
+                    className={`kb-ag-month__cell ${day.getMonth() !== selectedDate.getMonth() ? 'is-muted' : ''} ${isSameDay(day, selectedDate) ? 'is-selected' : ''} ${isSameDay(day, startOfDay()) ? 'is-today' : ''}`}
+                    key={toDateKey(day)}
+                    onClick={() => {
+                      setSelectedDate(day)
+                      setView('day')
+                    }}
+                    type="button"
+                  >
+                    <span className="kb-ag-month__num">
+                      <strong>{day.getDate()}</strong>
+                      {events.length ? (
+                        <em className="kb-ag-month__count">{events.length}</em>
+                      ) : null}
+                    </span>
+                    {events.slice(0, 2).map((event) => (
+                      <small
+                        className={`kb-ag-month__event is-${event.status}`}
+                        key={event.id}
+                      >
+                        {formatTime(event.startAt)} {event.patientName}
+                      </small>
+                    ))}
+                    {events.length > 2 ? (
+                      <small className="kb-ag-month__event is-more">
+                        +{events.length - 2} autre
+                        {events.length - 2 > 1 ? 's' : ''}
+                      </small>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </article>
+
+          <aside className="kb-rail">
+            <NextAppointmentCard
+              appointment={nextAppointment}
+              onSelect={setSelectedAppointment}
+            />
+            <DaySummaryCard
+              appointments={appointments}
+              date={selectedDate}
+              freeCount={freeCount}
+            />
+            <FreeSlotsCard
+              appointments={appointments}
+              date={selectedDate}
+              weeklyAvailability={weeklyAvailability}
+            />
+          </aside>
+        </div>
+
+        <AppointmentDetailDialog
+          appointment={selectedAppointment}
+          onConfirm={(id) => {
+            confirmAppointment(id)
+            setSelectedAppointment(null)
+          }}
+          onOpenChange={(open) => {
+            if (!open) setSelectedAppointment(null)
+          }}
+          onRefuse={(id) => {
+            refuseAppointment(id)
+            setSelectedAppointment(null)
+          }}
+          open={Boolean(selectedAppointment)}
+        />
+      </section>
+    </DoctorDataState>
   )
 }

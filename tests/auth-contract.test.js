@@ -90,11 +90,11 @@ test('un médecin valide atteint le service (pas bloqué par 401/403)', async ()
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    // La logique métier de listDoctorAppointments n'est pas encore
-    // implémentée (issue #12) : on attend donc 501, pas 401/403. Ce test
-    // vérifie que l'autorisation laisse bien passer un vrai médecin
-    // jusqu'au service, ce qui était cassé avant le correctif.
-    assert.equal(response.status, 501)
+    assert.equal(response.status, 200)
+    const appointments = await response.json()
+    assert.ok(Array.isArray(appointments))
+    assert.ok(appointments.some((item) => item.doctorId === 1))
+    assert.ok(appointments.every((item) => item.patientName))
   } finally {
     await close()
     fs.rmSync(dbPath, { force: true })

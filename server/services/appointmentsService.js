@@ -1,21 +1,48 @@
 const { ApiError } = require('../utils/apiError')
 
-// Ce service porte toute la logique métier des rendez-vous : réservation,
-// confirmation, refus, annulation, liste des rendez-vous d'un médecin.
-// Chaque fonction manipule `db` (app.db, l'accès direct à db.json) et ne
-// fait jamais d'appel HTTP interne — c'est une règle de l'issue #7.
-//
-// bookAppointment est implémentée (issue #8). Les autres fonctions restent
-// des squelettes ; la logique arrive avec les issues #9 (confirm),
-// #10 (refuse), #11 (cancel), #12 (liste médecin) et #13 (créneaux).
+function findDoctorClinicId(db, doctorId) {
+  const doctor = db.get('doctors').find({ id: doctorId }).value()
+  return doctor ? doctor.clinicId : null
+}
 
-// Réserve un créneau pour le patient connecté (issue #8).
-//
-// Toutes les lectures/écritures ci-dessous sont synchrones (lowdb v1, la
-// base utilisée par json-server) : aucun `await` n'intervient entre la
-// vérification du créneau et son verrouillage. Node.js étant mono-thread,
-// aucune autre requête ne peut s'intercaler pendant cette fonction — c'est
-// ce qui rend la transition "atomique" comme demandé par l'issue.
+function findDoctorAppointment(db, doctor, appointmentId) {
+  const id = Number(appointmentId)
+  const appointment = db
+    .get('appointments')
+    .find({ id, doctorId: doctor.id })
+    .value()
+
+  if (!appointment) {
+    throw new ApiError(404, 'Rendez-vous introuvable.')
+  }
+
+  return appointment
+}
+
+function enrichAppointment(db, appointment) {
+  const user = db.get('users').find({ id: appointment.userId }).value()
+  const slot = db.get('availabilitySlots').find({ id: appointment.slotId }).value()
+  const clinic = db.get('clinics').find({ id: appointment.clinicId }).value()
+
+  return {
+    id: appointment.id,
+    userId: appointment.userId,
+    doctorId: appointment.doctorId,
+    clinicId: appointment.clinicId,
+    slotId: appointment.slotId,
+    status: appointment.status,
+    reason: appointment.reason,
+    createdAt: appointment.createdAt,
+    updatedAt: appointment.updatedAt,
+    patientName: user ? `${user.firstName} ${user.lastName}` : 'Patient inconnu',
+    phone: user?.phone ?? '',
+    startAt: slot?.startAt ?? appointment.createdAt,
+    endAt: slot?.endAt ?? appointment.createdAt,
+    clinic: clinic?.name ?? '',
+    district: clinic?.district ?? '',
+  }
+}
+
 function bookAppointment(db, patientId, input) {
   const slotId = input && input.slotId
 
@@ -29,8 +56,6 @@ function bookAppointment(db, patientId, input) {
     throw new ApiError(404, 'Créneau introuvable.')
   }
 
-  // Conflit concurrent : quelqu'un d'autre a réservé ce créneau entre le
-  // moment où le patient l'a vu côté frontend et sa demande de réservation.
   if (slot.status !== 'available') {
     throw new ApiError(409, "Ce créneau n'est plus disponible.")
   }
@@ -56,38 +81,66 @@ function bookAppointment(db, patientId, input) {
     .assign({ status: 'unavailable', appointmentId: appointment.id })
     .write()
 
-  return appointment
+  return enrichAppointment(db, appointment)
 }
 
-// Le créneau ne porte pas directement le clinicId : on le retrouve via
-// le médecin propriétaire du créneau (voir db.json : doctors.clinicId).
-function findDoctorClinicId(db, doctorId) {
-  const doctor = db.get('doctors').find({ id: doctorId }).value()
-  return doctor ? doctor.clinicId : null
+function listDoctorAppointments(db, doctor) {
+  return db
+    .get('appointments')
+    .filter({ doctorId: doctor.id })
+    .value()
+    .map((appointment) => enrichAppointment(db, appointment))
+    .sort((left, right) => new Date(left.startAt) - new Date(right.startAt))
 }
 
-function confirmAppointment(_db, _doctor, _appointmentId) {
-  throw new ApiError(
-    501,
-    'Route métier préparée mais non implémentée dans le socle initial.',
-  )
+function confirmAppointment(db, doctor, appointmentId) {
+  const appointment = findDoctorAppointment(db, doctor, appointmentId)
+
+  if (appointment.status !== 'pending') {
+    throw new ApiError(
+      409,
+      'Seules les demandes en attente peuvent être confirmées.',
+    )
+  }
+
+  const updatedAt = new Date().toISOString()
+
+  db.get('appointments')
+    .find({ id: appointment.id })
+    .assign({ status: 'confirmed', updatedAt })
+    .write()
+
+  return enrichAppointment(db, { ...appointment, status: 'confirmed', updatedAt })
 }
 
-function refuseAppointment(_db, _doctor, _appointmentId) {
-  throw new ApiError(
-    501,
-    'Route métier préparée mais non implémentée dans le socle initial.',
-  )
+function refuseAppointment(db, doctor, appointmentId) {
+  const appointment = findDoctorAppointment(db, doctor, appointmentId)
+
+  if (appointment.status !== 'pending') {
+    throw new ApiError(
+      409,
+      'Seules les demandes en attente peuvent être refusées.',
+    )
+  }
+
+  const updatedAt = new Date().toISOString()
+
+  db.get('appointments')
+    .find({ id: appointment.id })
+    .assign({ status: 'refused', updatedAt })
+    .write()
+
+  if (appointment.slotId) {
+    db.get('availabilitySlots')
+      .find({ id: appointment.slotId })
+      .assign({ status: 'available', appointmentId: null })
+      .write()
+  }
+
+  return enrichAppointment(db, { ...appointment, status: 'refused', updatedAt })
 }
 
 function cancelAppointment(_db, _patientId, _appointmentId) {
-  throw new ApiError(
-    501,
-    'Route métier préparée mais non implémentée dans le socle initial.',
-  )
-}
-
-function listDoctorAppointments(_db, _doctor) {
   throw new ApiError(
     501,
     'Route métier préparée mais non implémentée dans le socle initial.',

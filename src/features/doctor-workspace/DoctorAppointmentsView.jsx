@@ -5,6 +5,7 @@ import { InitialsAvatar } from '../../components/domain'
 import { Button, EmptyState, StatusBadge } from '../../design-system'
 import { formatTime, isSameDay, startOfDay } from './dates'
 import { AppointmentDetailDialog } from './AppointmentDetailDialog'
+import { DoctorDataState } from './DoctorDataState'
 import { KpiCards } from './KpiCards'
 import { PageBanner } from './PageBanner'
 import { SegmentedControl } from './SegmentedControl'
@@ -32,8 +33,15 @@ function dateLabel(value) {
 }
 
 export function DoctorAppointmentsView() {
-  const { appointments, confirmAppointment, refuseAppointment } =
-    useDoctorWorkspace()
+  const {
+    appointments,
+    appointmentsLoading,
+    appointmentsError,
+    refetchAppointments,
+    confirmAppointment,
+    refuseAppointment,
+    isMutatingAppointment,
+  } = useDoctorWorkspace()
   const [filterId, setFilterId] = useState('today')
   const [selectedAppointment, setSelectedAppointment] = useState(null)
   const visible = useMemo(
@@ -106,108 +114,117 @@ export function DoctorAppointmentsView() {
   ]
 
   return (
-    <section className="kb-page">
-      <PageBanner
-        action={
-          <Link className="kb-banner__cta" to="/doctor/agenda">
-            Ouvrir l’agenda
-          </Link>
-        }
-        description="Traitez les demandes du jour et consultez l’historique des rendez-vous déjà clos."
-        eyebrow="Pilotage des consultations"
-        side={
-          <SegmentedControl
-            ariaLabel="Filtrer les rendez-vous"
-            items={filters}
-            onChange={setFilterId}
-            value={filterId}
-          />
-        }
-        title="Rendez-vous"
-      />
+    <DoctorDataState
+      error={appointmentsError}
+      isLoading={appointmentsLoading}
+      loadingLabel="Chargement des rendez-vous…"
+      onRetry={refetchAppointments}
+    >
+      <section className="kb-page">
+        <PageBanner
+          action={
+            <Link className="kb-banner__cta" to="/doctor/agenda">
+              Ouvrir l’agenda
+            </Link>
+          }
+          description="Traitez les demandes du jour et consultez l’historique des rendez-vous déjà clos."
+          eyebrow="Pilotage des consultations"
+          side={
+            <SegmentedControl
+              ariaLabel="Filtrer les rendez-vous"
+              items={filters}
+              onChange={setFilterId}
+              value={filterId}
+            />
+          }
+          title="Rendez-vous"
+        />
 
-      <KpiCards cards={cards} />
+        <KpiCards cards={cards} />
 
-      <section className="kb-card kb-panel">
-        <div className="kb-panel__toolbar">
-          <div>
-            <h2>Liste des rendez-vous</h2>
-            <p>
-              {filterId === 'today'
-                ? 'Patients prévus aujourd’hui.'
-                : 'Rendez-vous terminés, annulés ou refusés.'}
-            </p>
+        <section className="kb-card kb-panel">
+          <div className="kb-panel__toolbar">
+            <div>
+              <h2>Liste des rendez-vous</h2>
+              <p>
+                {filterId === 'today'
+                  ? 'Patients prévus aujourd’hui.'
+                  : 'Rendez-vous terminés, annulés ou refusés.'}
+              </p>
+            </div>
           </div>
-        </div>
-        {visible.length === 0 ? (
-          <EmptyState
-            description="Modifiez le filtre pour afficher une autre période."
-            title="Aucun rendez-vous sur cette période."
-          />
-        ) : (
-          <div className="kb-appt-grid">
-            {visible.map((item) => (
-              <article className="kb-appt-card" key={item.id}>
-                <div className="kb-appt-card__head">
-                  <InitialsAvatar name={item.patientName} />
-                  <StatusBadge status={item.status} />
-                </div>
-                <strong>{item.patientName}</strong>
-                <p>{item.reason}</p>
-                <div className="kb-appt-card__meta">
-                  <span>
-                    {dateLabel(item.startAt)} · {formatTime(item.startAt)}
-                  </span>
-                  <span>{item.phone}</span>
-                </div>
-                <div className="kb-actions">
-                  {item.status === 'pending' ? (
-                    <>
+          {visible.length === 0 ? (
+            <EmptyState
+              description="Modifiez le filtre pour afficher une autre période."
+              title="Aucun rendez-vous sur cette période."
+            />
+          ) : (
+            <div className="kb-appt-grid">
+              {visible.map((item) => (
+                <article className="kb-appt-card" key={item.id}>
+                  <div className="kb-appt-card__head">
+                    <InitialsAvatar name={item.patientName} />
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <strong>{item.patientName}</strong>
+                  <p>{item.reason}</p>
+                  <div className="kb-appt-card__meta">
+                    <span>
+                      {dateLabel(item.startAt)} · {formatTime(item.startAt)}
+                    </span>
+                    <span>{item.phone}</span>
+                  </div>
+                  <div className="kb-actions">
+                    {item.status === 'pending' ? (
+                      <>
+                        <Button
+                          disabled={isMutatingAppointment}
+                          onClick={() => confirmAppointment(item.id)}
+                          size="sm"
+                        >
+                          Confirmer
+                        </Button>
+                        <Button
+                          disabled={isMutatingAppointment}
+                          onClick={() => refuseAppointment(item.id)}
+                          size="sm"
+                          variant="secondary"
+                        >
+                          Refuser
+                        </Button>
+                      </>
+                    ) : (
                       <Button
-                        onClick={() => confirmAppointment(item.id)}
+                        onClick={() => setSelectedAppointment(item)}
                         size="sm"
+                        variant="quiet"
                       >
-                        Confirmer
+                        Voir le détail
                       </Button>
-                      <Button
-                        onClick={() => refuseAppointment(item.id)}
-                        size="sm"
-                        variant="secondary"
-                      >
-                        Refuser
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      onClick={() => setSelectedAppointment(item)}
-                      size="sm"
-                      variant="quiet"
-                    >
-                      Voir le détail
-                    </Button>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <AppointmentDetailDialog
+          appointment={selectedAppointment}
+          onConfirm={(id) => {
+            confirmAppointment(id)
+            setSelectedAppointment(null)
+          }}
+          onOpenChange={(open) => {
+            if (!open) setSelectedAppointment(null)
+          }}
+          onRefuse={(id) => {
+            refuseAppointment(id)
+            setSelectedAppointment(null)
+          }}
+          open={Boolean(selectedAppointment)}
+        />
       </section>
-
-      <AppointmentDetailDialog
-        appointment={selectedAppointment}
-        onConfirm={(id) => {
-          confirmAppointment(id)
-          setSelectedAppointment(null)
-        }}
-        onOpenChange={(open) => {
-          if (!open) setSelectedAppointment(null)
-        }}
-        onRefuse={(id) => {
-          refuseAppointment(id)
-          setSelectedAppointment(null)
-        }}
-        open={Boolean(selectedAppointment)}
-      />
-    </section>
+    </DoctorDataState>
   )
 }

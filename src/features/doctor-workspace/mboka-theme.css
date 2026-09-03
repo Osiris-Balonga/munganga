@@ -477,8 +477,37 @@
   font-weight: 700;
 }
 
-.dw-content {
+.kb-doctor-page {
   padding: 18px 16px 88px;
+}
+
+.kb-page--loading .kb-kpi {
+  display: grid;
+  gap: 10px;
+}
+
+.kb-skeleton-line {
+  display: block;
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.kb-skeleton-line--sm {
+  width: 40%;
+  height: 10px;
+}
+
+.kb-skeleton-line--lg {
+  width: 70%;
+  height: 22px;
+  margin-top: 4px;
+}
+
+@media (min-width: 760px) {
+  .kb-doctor-page {
+    padding: 22px 24px 32px;
+  }
 }
 
 .kb-page-head {

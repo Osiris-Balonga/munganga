@@ -12,12 +12,6 @@ import { useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Button, EmptyState } from '../../design-system'
 import {
-  canUseDoctorAvailabilityApi,
-  createDoctorAvailabilitySlot,
-  deleteDoctorAvailabilitySlot,
-  listDoctorAvailabilitySlots,
-} from '../availability/availabilityApi'
-import {
   addDays,
   combineDateAndTime,
   formatLongDate,
@@ -29,6 +23,7 @@ import {
   startOfWeek,
   toDateKey,
 } from './dates'
+import { DoctorDataState } from './DoctorDataState'
 import { KpiCards } from './KpiCards'
 import { PageBanner } from './PageBanner'
 import { useDoctorWorkspace } from './workspaceContext'
@@ -77,15 +72,16 @@ function SlotCard({ slot, busy, onDelete }) {
 export function DoctorAvailabilityView() {
   const {
     availabilitySlots,
-    setAvailabilitySlots,
+    availabilityLoading,
+    availabilityError,
+    refetchAvailability,
     createAvailabilitySlot,
     deleteAvailabilitySlot,
-    showToast,
+    isMutatingAvailability,
   } = useDoctorWorkspace()
   const [selectedDay, setSelectedDay] = useState(() => startOfDay())
   const [time, setTime] = useState('09:00')
   const [duration, setDuration] = useState(30)
-  const [busy, setBusy] = useState(false)
 
   const weekStart = startOfWeek(selectedDay)
   const weekDays = getWeekDays(selectedDay)
@@ -197,256 +193,243 @@ export function DoctorAvailabilityView() {
     },
   ]
 
-  async function refreshFromApi() {
-    if (!canUseDoctorAvailabilityApi()) return
-    const slots = await listDoctorAvailabilitySlots()
-    setAvailabilitySlots(slots)
-  }
-
   async function handleCreate(event) {
     event.preventDefault()
     const startAt = combineDateAndTime(selectedDay, time)
     const endAt = new Date(startAt.getTime() + duration * 60 * 1000)
-    const payload = {
-      startAt: startAt.toISOString(),
-      endAt: endAt.toISOString(),
-    }
-
-    setBusy(true)
     try {
-      if (canUseDoctorAvailabilityApi()) {
-        await createDoctorAvailabilitySlot(payload)
-        await refreshFromApi()
-        showToast('Créneau disponible créé.')
-      } else {
-        createAvailabilitySlot(payload)
-      }
-    } catch (error) {
-      showToast(error.message || 'Création impossible.')
-    } finally {
-      setBusy(false)
+      await createAvailabilitySlot({
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
+      })
+    } catch {
+      // Le toast d'erreur est géré dans le contexte.
     }
   }
 
   async function handleDelete(slotId) {
-    setBusy(true)
     try {
-      if (canUseDoctorAvailabilityApi()) {
-        await deleteDoctorAvailabilitySlot(slotId)
-        await refreshFromApi()
-        showToast('Créneau disponible supprimé.')
-      } else {
-        deleteAvailabilitySlot(slotId)
-      }
-    } catch (error) {
-      showToast(error.message || 'Suppression impossible.')
-    } finally {
-      setBusy(false)
+      await deleteAvailabilitySlot(slotId)
+    } catch {
+      // Le toast d'erreur est géré dans le contexte.
     }
   }
 
   return (
-    <section className="kb-page">
-      <PageBanner
-        action={
-          <Link className="kb-banner__cta" to="/doctor/agenda">
-            Voir l’agenda
-          </Link>
-        }
-        description="Créez ou retirez des créneaux disponibles. Les créneaux réservés restent protégés."
-        eyebrow="Gestion des créneaux"
-        title="Disponibilités"
-      />
+    <DoctorDataState
+      error={availabilityError}
+      isLoading={availabilityLoading}
+      loadingLabel="Chargement des disponibilités…"
+      onRetry={refetchAvailability}
+    >
+      <section className="kb-page">
+        <PageBanner
+          action={
+            <Link className="kb-banner__cta" to="/doctor/agenda">
+              Voir l’agenda
+            </Link>
+          }
+          description="Créez ou retirez des créneaux disponibles. Les créneaux réservés restent protégés."
+          eyebrow="Gestion des créneaux"
+          title="Disponibilités"
+        />
 
-      <KpiCards cards={kpiCards} />
+        <KpiCards cards={kpiCards} />
 
-      <div className="kb-workspace-grid">
-        <div className="kb-av-main">
-          <article className="kb-card kb-panel">
-            <div className="kb-panel__toolbar">
-              <div>
-                <h2>Vue de la semaine</h2>
-                <p>Taux de remplissage par jour. Cliquez pour sélectionner.</p>
-              </div>
-              <div className="kb-cal-nav">
-                <button
-                  aria-label="Semaine précédente"
-                  className="kb-iconbtn"
-                  onClick={() => setSelectedDay(addDays(selectedDay, -7))}
-                  type="button"
-                >
-                  <ChevronLeft />
-                </button>
-                <button
-                  aria-label="Semaine suivante"
-                  className="kb-iconbtn"
-                  onClick={() => setSelectedDay(addDays(selectedDay, 7))}
-                  type="button"
-                >
-                  <ChevronRight />
-                </button>
-              </div>
-            </div>
-            <div className="kb-av-week">
-              {weekStats.perDay.map(({ day, total, reserved, free }) => {
-                const pct = total ? Math.round((reserved / total) * 100) : 0
-                return (
+        <div className="kb-workspace-grid">
+          <div className="kb-av-main">
+            <article className="kb-card kb-panel">
+              <div className="kb-panel__toolbar">
+                <div>
+                  <h2>Vue de la semaine</h2>
+                  <p>
+                    Taux de remplissage par jour. Cliquez pour sélectionner.
+                  </p>
+                </div>
+                <div className="kb-cal-nav">
                   <button
-                    className={`kb-av-day ${isSameDay(day, selectedDay) ? 'is-selected' : ''} ${isSameDay(day, startOfDay()) ? 'is-today' : ''}`}
-                    key={toDateKey(day)}
-                    onClick={() => setSelectedDay(startOfDay(day))}
+                    aria-label="Semaine précédente"
+                    className="kb-iconbtn"
+                    onClick={() => setSelectedDay(addDays(selectedDay, -7))}
                     type="button"
                   >
-                    <small>{formatWeekday(day)}</small>
-                    <strong>{day.getDate()}</strong>
-                    <span
-                      className={`kb-track ${total ? '' : 'is-off'}`}
-                      aria-hidden="true"
-                    >
-                      <span
-                        className="kb-track__block"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </span>
-                    <em>{total ? `${free}/${total} libres` : 'Fermé'}</em>
+                    <ChevronLeft />
                   </button>
-                )
-              })}
-            </div>
-          </article>
+                  <button
+                    aria-label="Semaine suivante"
+                    className="kb-iconbtn"
+                    onClick={() => setSelectedDay(addDays(selectedDay, 7))}
+                    type="button"
+                  >
+                    <ChevronRight />
+                  </button>
+                </div>
+              </div>
+              <div className="kb-av-week">
+                {weekStats.perDay.map(({ day, total, reserved, free }) => {
+                  const pct = total ? Math.round((reserved / total) * 100) : 0
+                  return (
+                    <button
+                      className={`kb-av-day ${isSameDay(day, selectedDay) ? 'is-selected' : ''} ${isSameDay(day, startOfDay()) ? 'is-today' : ''}`}
+                      key={toDateKey(day)}
+                      onClick={() => setSelectedDay(startOfDay(day))}
+                      type="button"
+                    >
+                      <small>{formatWeekday(day)}</small>
+                      <strong>{day.getDate()}</strong>
+                      <span
+                        className={`kb-track ${total ? '' : 'is-off'}`}
+                        aria-hidden="true"
+                      >
+                        <span
+                          className="kb-track__block"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </span>
+                      <em>{total ? `${free}/${total} libres` : 'Fermé'}</em>
+                    </button>
+                  )
+                })}
+              </div>
+            </article>
 
-          <article className="kb-card kb-panel">
-            <div className="kb-panel__toolbar">
-              <div>
-                <h2>{formatLongDate(selectedDay)}</h2>
-                <p>
-                  {daySlots.length} créneau{daySlots.length > 1 ? 'x' : ''} ·{' '}
-                  {dayFree} libre{dayFree > 1 ? 's' : ''}
-                </p>
+            <article className="kb-card kb-panel">
+              <div className="kb-panel__toolbar">
+                <div>
+                  <h2>{formatLongDate(selectedDay)}</h2>
+                  <p>
+                    {daySlots.length} créneau{daySlots.length > 1 ? 'x' : ''} ·{' '}
+                    {dayFree} libre{dayFree > 1 ? 's' : ''}
+                  </p>
+                </div>
               </div>
-            </div>
-            {daySlots.length === 0 ? (
-              <EmptyState
-                description="Utilisez le formulaire pour ouvrir un créneau."
-                title="Aucun créneau ce jour."
-              />
-            ) : (
-              <div className="kb-av-slots">
-                {dayParts.map((part) =>
-                  part.slots.length === 0 ? null : (
-                    <div className="kb-av-slots__part" key={part.id}>
-                      <div className="kb-ag-part__label">
-                        <span>{part.label}</span>
-                        <small>
-                          {part.slots.length} créneau
-                          {part.slots.length > 1 ? 'x' : ''}
-                        </small>
-                      </div>
-                      <div className="kb-av-slots__grid">
-                        {part.slots.map((slot) => (
-                          <SlotCard
-                            busy={busy}
-                            key={slot.id}
-                            onDelete={handleDelete}
-                            slot={slot}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ),
-                )}
-              </div>
-            )}
-          </article>
-        </div>
-
-        <aside className="kb-rail">
-          <article className="kb-card kb-rail-card">
-            <div className="kb-card__head">
-              <div>
-                <h2>Nouveau créneau</h2>
-                <p>Ouvre un créneau disponible à la réservation.</p>
-              </div>
-            </div>
-            <form className="kb-slot-form" onSubmit={handleCreate}>
-              <label>
-                Date
-                <input
-                  onChange={(event) =>
-                    setSelectedDay(startOfDay(event.target.value))
-                  }
-                  required
-                  type="date"
-                  value={toInputDate(selectedDay)}
+              {daySlots.length === 0 ? (
+                <EmptyState
+                  description="Utilisez le formulaire pour ouvrir un créneau."
+                  title="Aucun créneau ce jour."
                 />
-              </label>
-              <div className="kb-slot-form__row">
+              ) : (
+                <div className="kb-av-slots">
+                  {dayParts.map((part) =>
+                    part.slots.length === 0 ? null : (
+                      <div className="kb-av-slots__part" key={part.id}>
+                        <div className="kb-ag-part__label">
+                          <span>{part.label}</span>
+                          <small>
+                            {part.slots.length} créneau
+                            {part.slots.length > 1 ? 'x' : ''}
+                          </small>
+                        </div>
+                        <div className="kb-av-slots__grid">
+                          {part.slots.map((slot) => (
+                            <SlotCard
+                              busy={isMutatingAvailability}
+                              key={slot.id}
+                              onDelete={handleDelete}
+                              slot={slot}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              )}
+            </article>
+          </div>
+
+          <aside className="kb-rail">
+            <article className="kb-card kb-rail-card">
+              <div className="kb-card__head">
+                <div>
+                  <h2>Nouveau créneau</h2>
+                  <p>Ouvre un créneau disponible à la réservation.</p>
+                </div>
+              </div>
+              <form className="kb-slot-form" onSubmit={handleCreate}>
                 <label>
-                  Début
+                  Date
                   <input
-                    onChange={(event) => setTime(event.target.value)}
+                    onChange={(event) =>
+                      setSelectedDay(startOfDay(event.target.value))
+                    }
                     required
-                    step={900}
-                    type="time"
-                    value={time}
+                    type="date"
+                    value={toInputDate(selectedDay)}
                   />
                 </label>
-                <label>
-                  Durée
-                  <select
-                    onChange={(event) =>
-                      setDuration(Number(event.target.value))
-                    }
-                    value={duration}
+                <div className="kb-slot-form__row">
+                  <label>
+                    Début
+                    <input
+                      onChange={(event) => setTime(event.target.value)}
+                      required
+                      step={900}
+                      type="time"
+                      value={time}
+                    />
+                  </label>
+                  <label>
+                    Durée
+                    <select
+                      onChange={(event) =>
+                        setDuration(Number(event.target.value))
+                      }
+                      value={duration}
+                    >
+                      {DURATIONS.map((value) => (
+                        <option key={value} value={value}>
+                          {value} min
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="kb-slot-form__footer">
+                  <span className="kb-muted">
+                    Fin {endTime} · {duration} min
+                  </span>
+                  <Button
+                    disabled={isMutatingAvailability}
+                    size="sm"
+                    type="submit"
                   >
-                    {DURATIONS.map((value) => (
-                      <option key={value} value={value}>
-                        {value} min
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="kb-slot-form__footer">
-                <span className="kb-muted">
-                  Fin {endTime} · {duration} min
-                </span>
-                <Button disabled={busy} size="sm" type="submit">
-                  <Plus aria-hidden="true" size={16} />
-                  Créer
-                </Button>
-              </div>
-            </form>
-          </article>
+                    <Plus aria-hidden="true" size={16} />
+                    Créer
+                  </Button>
+                </div>
+              </form>
+            </article>
 
-          <article className="kb-card kb-rail-card">
-            <div className="kb-card__head">
-              <div>
-                <h2>Cette semaine</h2>
-                <p>Semaine du {formatLongDate(weekStart)}</p>
+            <article className="kb-card kb-rail-card">
+              <div className="kb-card__head">
+                <div>
+                  <h2>Cette semaine</h2>
+                  <p>Semaine du {formatLongDate(weekStart)}</p>
+                </div>
               </div>
-            </div>
-            <dl className="kb-rail-stats">
-              <div className="kb-rail-stats__row">
-                <dt>Créneaux ouverts</dt>
-                <dd>{weekStats.total}</dd>
-              </div>
-              <div className="kb-rail-stats__row">
-                <dt>Réservés</dt>
-                <dd>{weekStats.reserved}</dd>
-              </div>
-              <div className="kb-rail-stats__row">
-                <dt>Libres</dt>
-                <dd>{weekStats.free}</dd>
-              </div>
-              <div className="kb-rail-stats__row">
-                <dt>Remplissage</dt>
-                <dd>{weekStats.fillRate} %</dd>
-              </div>
-            </dl>
-          </article>
-        </aside>
-      </div>
-    </section>
+              <dl className="kb-rail-stats">
+                <div className="kb-rail-stats__row">
+                  <dt>Créneaux ouverts</dt>
+                  <dd>{weekStats.total}</dd>
+                </div>
+                <div className="kb-rail-stats__row">
+                  <dt>Réservés</dt>
+                  <dd>{weekStats.reserved}</dd>
+                </div>
+                <div className="kb-rail-stats__row">
+                  <dt>Libres</dt>
+                  <dd>{weekStats.free}</dd>
+                </div>
+                <div className="kb-rail-stats__row">
+                  <dt>Remplissage</dt>
+                  <dd>{weekStats.fillRate} %</dd>
+                </div>
+              </dl>
+            </article>
+          </aside>
+        </div>
+      </section>
+    </DoctorDataState>
   )
 }
