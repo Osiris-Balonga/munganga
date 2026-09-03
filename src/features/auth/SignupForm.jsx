@@ -305,10 +305,10 @@ export function SignupForm() {
         open={isSuccessOpen}
         onOpenChange={setIsSuccessOpen}
         title="Compte créé"
-        description="Votre compte a été créé avec succès. Confirmez pour vous rendre sur la page de connexion."
-        confirmLabel="Aller à la connexion"
+        description="Votre compte a été créé avec succès. Vous allez être redirigé vers votre espace patient."
+        confirmLabel="Accéder à mon espace"
         cancelLabel="Fermer"
-        onConfirm={() => navigate({ to: '/login' })}
+        onConfirm={() => navigate({ to: '/patient/appointments' })}
       />
     </>
   )
