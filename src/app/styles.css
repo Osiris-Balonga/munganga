@@ -40,9 +40,6 @@
   text-transform: uppercase;
 }
 
-@media (max-width: 760px) {
-  .app-shell main {
-    min-height: calc(100vh - 8.5rem);
-    padding-bottom: 4.5rem;
-  }
+.app-shell--doctor main {
+  min-height: calc(100vh - 4.5rem);
 }

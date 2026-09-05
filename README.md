@@ -91,13 +91,14 @@ Routes métier protégées :
 - `PATCH /api/appointments/:id/refuse`
 - `PATCH /api/appointments/:id/cancel`
 - `GET /api/doctor/appointments`
+- `GET /api/doctor/availability-slots`
+- `POST /api/doctor/availability-slots`
+- `DELETE /api/doctor/availability-slots/:id`
 
-`POST /api/book` est implémentée. Les autres actions restent des points
-d’extension et peuvent répondre `501 Not Implemented` tant que leur issue n’est
-pas livrée. Les mutations directes de `/appointments` et
-`/availabilitySlots` répondent `405` : une action métier doit vérifier
-l’identité, les statuts, la date et l’unicité du créneau dans un service
-utilisant `app.db`.
+Les créneaux médecin passent par ces routes métier : création et suppression
+des créneaux `available` uniquement, avec protection des créneaux déjà
+réservés. Les mutations directes de `/appointments` et `/availabilitySlots`
+répondent `405`.
 
 ## État du socle
 

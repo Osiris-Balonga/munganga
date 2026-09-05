@@ -12,6 +12,9 @@ const {
 const {
   registerDoctorAppointmentsRoute,
 } = require('./server/routes/doctorAppointmentsRoute')
+const {
+  registerDoctorAvailabilityRoute,
+} = require('./server/routes/doctorAvailabilityRoute')
 
 // Construit l'application Express/json-server. Extrait dans une fonction
 // (plutôt qu'exécuté directement au chargement du fichier) pour que les
@@ -56,6 +59,10 @@ function createApp(dbPath = path.join(__dirname, 'db.json'), overrides = {}) {
   registerDoctorAppointmentsRoute(app, {
     requireJwt,
     services: overrides.appointmentsService,
+  })
+  registerDoctorAvailabilityRoute(app, {
+    requireJwt,
+    services: overrides.availabilityService,
   })
 
   app.use(

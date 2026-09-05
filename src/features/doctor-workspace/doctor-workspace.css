@@ -1,0 +1,893 @@
+.dw-shell {
+  display: grid;
+  min-height: 100vh;
+  background: var(--color-surface-workspace);
+  color: var(--color-ink);
+}
+
+.dw-sidebar {
+  display: none;
+}
+
+.dw-main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  min-height: 0;
+}
+
+.dw-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 4.5rem;
+  padding: var(--space-3) var(--space-4);
+}
+
+.dw-topbar__menu {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.dw-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-brand-800);
+  text-decoration: none;
+}
+
+.dw-brand__mark {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: var(--color-brand-600);
+  color: white;
+}
+
+.dw-brand__mark svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.dw-brand strong,
+.dw-brand small {
+  display: block;
+  line-height: var(--line-tight);
+}
+
+.dw-brand strong {
+  font-size: var(--text-md);
+}
+
+.dw-brand small {
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.dw-topbar__actions,
+.dw-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dw-icon-btn {
+  position: relative;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.dw-icon-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.dw-dot {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-danger);
+}
+
+.dw-content {
+  padding: 0 var(--space-4) 6rem;
+}
+
+.dw-page {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.dw-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.dw-header h1,
+.dw-header p {
+  margin: 0;
+}
+
+.dw-header h1 {
+  font-size: var(--text-xl);
+  line-height: var(--line-tight);
+}
+
+.dw-header p {
+  margin-top: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.dw-profile-chip {
+  display: none;
+}
+
+.dw-hero {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background:
+    radial-gradient(circle at 88% 20%, rgb(255 255 255 / 18%), transparent 22%),
+    linear-gradient(135deg, var(--color-brand-600), var(--color-brand-800));
+  color: white;
+  box-shadow: var(--shadow-card);
+}
+
+.dw-hero h2,
+.dw-hero p {
+  margin: 0;
+}
+
+.dw-hero h2 {
+  font-size: var(--text-2xl);
+  line-height: var(--line-tight);
+}
+
+.dw-hero p {
+  max-width: 38ch;
+  margin-top: var(--space-3);
+  color: rgb(255 255 255 / 86%);
+}
+
+.dw-hero__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.dw-hero__metric {
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: rgb(255 255 255 / 12%);
+}
+
+.dw-hero__metric span,
+.dw-stat span,
+.dw-card__label {
+  display: block;
+  color: rgb(255 255 255 / 74%);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.dw-hero__metric strong,
+.dw-stat strong {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--text-xl);
+  line-height: var(--line-tight);
+}
+
+.dw-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.dw-hero .ds-button--primary {
+  background: white;
+  color: var(--color-brand-700);
+}
+
+.dw-hero .ds-button--secondary {
+  border-color: rgb(255 255 255 / 35%);
+  background: transparent;
+  color: white;
+}
+
+.dw-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.dw-stat,
+.dw-card,
+.dw-appointment,
+.dw-day-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.dw-stat {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.dw-stat span {
+  color: var(--color-ink-muted);
+}
+
+.dw-stat strong {
+  color: var(--color-ink);
+  font-size: var(--text-2xl);
+}
+
+.dw-stat small {
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.dw-stat__icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+}
+
+.dw-stat__icon--success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.dw-stat__icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.dw-layout {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.dw-card {
+  min-width: 0;
+  padding: var(--space-5);
+}
+
+.dw-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.dw-card__header h2,
+.dw-card__label {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: var(--text-md);
+}
+
+.dw-card__label {
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dw-appointment {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+  width: 100%;
+  padding: var(--space-4);
+  font: inherit;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.dw-appointment + .dw-appointment {
+  margin-top: var(--space-3);
+}
+
+.dw-appointment time {
+  color: var(--color-brand-700);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.dw-appointment strong,
+.dw-appointment p {
+  margin: 0;
+}
+
+.dw-appointment p {
+  margin-top: 0.2rem;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.dw-calendar {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dw-calendar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dw-calendar__nav strong {
+  font-size: var(--text-sm);
+}
+
+.dw-calendar__weekdays,
+.dw-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+
+.dw-calendar__weekdays span,
+.dw-calendar__day {
+  display: grid;
+  min-height: 2.25rem;
+  place-items: center;
+  font-size: var(--text-xs);
+}
+
+.dw-calendar__weekdays span {
+  color: var(--color-ink-muted);
+  font-weight: 600;
+}
+
+.dw-calendar__day {
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.dw-calendar__day.is-muted {
+  color: var(--color-border-strong);
+}
+
+.dw-calendar__day.is-today {
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+  font-weight: 700;
+}
+
+.dw-calendar__day.is-selected {
+  background: var(--color-brand-600);
+  color: white;
+}
+
+.dw-calendar__day.has-event::after {
+  content: '';
+  width: 0.3rem;
+  height: 0.3rem;
+  margin-top: 0.15rem;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+.dw-calendar__day.is-selected.has-event::after {
+  background: white;
+}
+
+.dw-next {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--color-brand-50);
+}
+
+.dw-next span {
+  color: var(--color-brand-700);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dw-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dw-slot {
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.dw-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+}
+
+.dw-agenda-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dw-day-grid {
+  display: grid;
+  gap: 0;
+}
+
+.dw-hour {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  min-height: 3.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.dw-hour span {
+  padding-top: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.dw-hour__lane {
+  position: relative;
+  min-height: 3.5rem;
+  border-left: 1px solid var(--color-border);
+}
+
+.dw-event {
+  position: absolute;
+  right: var(--space-2);
+  left: var(--space-2);
+  z-index: 1;
+  display: grid;
+  gap: 0.15rem;
+  padding: var(--space-2) var(--space-3);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-brand-50);
+  color: var(--color-brand-800);
+  cursor: pointer;
+}
+
+.dw-event--confirmed {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.dw-event--pending {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.dw-event strong,
+.dw-event small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dw-free {
+  position: absolute;
+  right: var(--space-2);
+  left: var(--space-2);
+  height: 1.5rem;
+  border: 1px dashed var(--color-success);
+  border-radius: var(--radius-sm);
+  background: rgb(22 118 71 / 6%);
+}
+
+.dw-week {
+  display: grid;
+  grid-template-columns: 4rem repeat(7, minmax(5.5rem, 1fr));
+  overflow-x: auto;
+}
+
+.dw-week__head,
+.dw-week__cell {
+  min-width: 5.5rem;
+  padding: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+}
+
+.dw-week__head {
+  text-align: center;
+  font-size: var(--text-xs);
+}
+
+.dw-week__cell {
+  min-height: 5rem;
+}
+
+.dw-month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dw-month__cell {
+  min-height: 6.5rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dw-month__cell.is-muted {
+  opacity: 0.45;
+}
+
+.dw-month__cell.is-selected {
+  border-color: var(--color-brand-600);
+  background: var(--color-brand-50);
+}
+
+.dw-day-card {
+  padding: var(--space-5);
+}
+
+.dw-day-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.dw-periods {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dw-period {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.dw-pause {
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: center;
+}
+
+.dw-profile {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.dw-profile__hero {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.dw-profile__meta,
+.dw-settings {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.dw-meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+}
+
+.dw-meta-row span {
+  color: var(--color-ink-muted);
+}
+
+.dw-popover {
+  width: min(22rem, calc(100vw - 2rem));
+  padding: var(--space-4);
+}
+
+.dw-notification {
+  display: grid;
+  gap: 0.2rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.dw-notification.is-unread {
+  background: var(--color-brand-50);
+}
+
+.dw-notification strong,
+.dw-notification p,
+.dw-notification small {
+  margin: 0;
+}
+
+.dw-notification p,
+.dw-notification small {
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.dw-toast {
+  position: fixed;
+  right: var(--space-4);
+  bottom: 5.5rem;
+  z-index: 60;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-ink);
+  color: white;
+  box-shadow: var(--shadow-float);
+}
+
+.dw-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.dw-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgb(26 27 35 / 36%);
+  cursor: pointer;
+}
+
+.dw-drawer__panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(18.5rem, 86vw);
+  height: 100%;
+  padding: var(--space-5);
+  overflow: auto;
+  background: var(--color-surface);
+}
+
+.dw-nav {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.dw-nav__label {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dw-nav a,
+.dw-nav button {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-ink-subtle);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dw-nav a svg,
+.dw-nav button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.dw-nav a:hover,
+.dw-nav button:hover,
+.dw-nav a[data-active='true'] {
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+}
+
+.dw-nav a[data-active='true'] {
+  box-shadow: inset 3px 0 0 var(--color-brand-600);
+}
+
+.dw-nav button.dw-nav__logout {
+  color: var(--color-danger);
+}
+
+.dw-sidebar__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  margin-top: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--color-brand-50);
+}
+
+.dw-sidebar__profile strong,
+.dw-sidebar__profile span {
+  display: block;
+}
+
+.dw-sidebar__profile span {
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.dw-empty {
+  padding: var(--space-8) var(--space-4);
+}
+
+.dw-bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--color-border);
+  background: rgb(255 255 255 / 96%);
+}
+
+.dw-bottom-nav a {
+  display: grid;
+  min-height: 4.25rem;
+  place-items: center;
+  gap: 0.15rem;
+  color: var(--color-ink-muted);
+  text-decoration: none;
+}
+
+.dw-bottom-nav a[data-active='true'] {
+  color: var(--color-brand-700);
+}
+
+.dw-bottom-nav svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.dw-bottom-nav small {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+@media (min-width: 760px) {
+  .dw-shell {
+    grid-template-columns: 16.75rem 1fr;
+  }
+
+  .dw-sidebar {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .dw-topbar {
+    padding: var(--space-5) var(--space-8) 0;
+    justify-content: flex-end;
+  }
+
+  .dw-topbar__menu,
+  .dw-brand--mobile,
+  .dw-bottom-nav {
+    display: none;
+  }
+
+  .dw-content {
+    padding: var(--space-6) var(--space-8) var(--space-8);
+  }
+
+  .dw-header h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .dw-profile-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .dw-profile-chip strong,
+  .dw-profile-chip small {
+    display: block;
+    line-height: var(--line-tight);
+  }
+
+  .dw-profile-chip small {
+    color: var(--color-ink-muted);
+    font-size: var(--text-xs);
+  }
+
+  .dw-hero {
+    grid-template-columns: 1.3fr 0.7fr;
+    align-items: center;
+    min-height: 15rem;
+    padding: var(--space-8);
+  }
+
+  .dw-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .dw-toast {
+    bottom: var(--space-6);
+  }
+}
+
+@media (min-width: 1100px) {
+  .dw-layout {
+    grid-template-columns: minmax(0, 1fr) 21rem;
+    align-items: start;
+  }
+
+  .dw-profile {
+    grid-template-columns: 22rem 1fr;
+    align-items: start;
+  }
+}

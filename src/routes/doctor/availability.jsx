@@ -1,16 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PlaceholderPage } from '../../components/PlaceholderPage'
+import { DoctorAvailabilityView } from '../../features/doctor-workspace/DoctorAvailabilityView'
 
 export const Route = createFileRoute('/doctor/availability')({
   component: DoctorAvailabilityPage,
 })
 
 function DoctorAvailabilityPage() {
-  return (
-    <PlaceholderPage
-      eyebrow="Espace médecin"
-      title="Disponibilités"
-      description="La gestion des créneaux sera implémentée via des routes métier protégées."
-    />
-  )
+  return <DoctorAvailabilityView />
 }
