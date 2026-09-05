@@ -90,11 +90,12 @@ test('un médecin valide atteint le service (pas bloqué par 401/403)', async ()
       headers: { Authorization: `Bearer ${token}` },
     })
 
+    // listDoctorAppointments est désormais implémentée (issue #12) : la
+    // couverture détaillée de son comportement vit dans
+    // tests/doctor-appointments.test.js. Ce test-ci reste centré sur son
+    // objet d'origine — l'autorisation laisse bien passer un vrai
+    // médecin, ce qui était cassé avant le correctif JWT.
     assert.equal(response.status, 200)
-    const appointments = await response.json()
-    assert.ok(Array.isArray(appointments))
-    assert.ok(appointments.some((item) => item.doctorId === 1))
-    assert.ok(appointments.every((item) => item.patientName))
   } finally {
     await close()
     fs.rmSync(dbPath, { force: true })

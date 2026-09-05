@@ -1,68 +1,107 @@
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { Button, ErrorState, TextField } from '../../design-system'
+import { useState, useEffect } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useNavigate, Link } from '@tanstack/react-router'
 import { login } from './authApi'
+import { Button, Skeleton, TextField } from '../../design-system'
 
 export function LoginForm() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('dr.makaya@munganga.cg')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [isHydrating, setIsHydrating] = useState(true)
+  const navigate = useNavigate()
 
-  async function handleSubmit(event) {
+  useEffect(() => {
+    requestAnimationFrame(() => setIsHydrating(false))
+  }, [])
+
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (session) => {
+      if (session.user.role === 'doctor') {
+        navigate({ to: '/doctor/agenda' })
+      } else if (session.user.role === 'patient') {
+        navigate({ to: '/patient/appointments' })
+      } else {
+        navigate({ to: '/' })
+      }
+    },
+  })
+
+  const handleSubmit = (event) => {
     event.preventDefault()
-    setLoading(true)
-    setError(null)
+    loginMutation.mutate({ email, password })
+  }
 
-    try {
-      const session = await login({ email, password })
-      const role = session.user?.role
-      navigate({
-        to: role === 'doctor' ? '/doctor' : '/patient/appointments',
-      })
-    } catch (submitError) {
-      setError(submitError.message || 'Connexion impossible.')
-    } finally {
-      setLoading(false)
-    }
+  const fieldError = loginMutation.isError ? loginMutation.error?.message : null
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value)
+    if (loginMutation.isError) loginMutation.reset()
+  }
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value)
+    if (loginMutation.isError) loginMutation.reset()
+  }
+
+  if (isHydrating) {
+    return (
+      <section className="login-container" aria-busy="true">
+        <div className="login-form login-form--skeleton">
+          <Skeleton className="login-skeleton__title" />
+          <Skeleton className="login-skeleton__field" />
+          <Skeleton className="login-skeleton__field" />
+          <Skeleton className="login-skeleton__button" />
+        </div>
+      </section>
+    )
   }
 
   return (
-    <section className="placeholder-page auth-page">
-      <p className="eyebrow">Connexion</p>
-      <h1>Accéder à Munganga</h1>
-      <p>
-        Utilisez votre compte patient ou médecin. Les comptes de démonstration
-        sont documentés dans le README.
-      </p>
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <TextField
-          autoComplete="email"
-          label="Adresse e-mail"
-          onChange={(event) => setEmail(event.target.value)}
-          required
-          type="email"
-          value={email}
-        />
-        <TextField
-          autoComplete="current-password"
-          label="Mot de passe"
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          type="password"
-          value={password}
-        />
-        {error ? (
-          <ErrorState
-            description={error}
-            onRetry={() => setError(null)}
-            title="Connexion refusée"
+    <section className="login-container">
+      <form onSubmit={handleSubmit} className="login-form">
+        <h1>Connexion</h1>
+        <p className="login-form__description">
+          Accédez à votre espace avec vos identifiants.
+        </p>
+
+        <div className="login-form__fields">
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            required
+            autoComplete="email"
+            placeholder="Votre adresse email"
+            value={email}
+            onChange={handleEmailChange}
           />
-        ) : null}
-        <Button disabled={loading} type="submit">
-          {loading ? 'Connexion…' : 'Se connecter'}
-        </Button>
+          <TextField
+            label="Mot de passe"
+            type="password"
+            name="password"
+            required
+            autoComplete="current-password"
+            placeholder="Votre mot de passe"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+          {fieldError ? (
+            <p className="login-form__error" role="alert">
+              {fieldError}
+            </p>
+          ) : null}
+
+          <Button type="submit" disabled={loginMutation.isPending}>
+            {loginMutation.isPending ? 'Connexion…' : 'Connexion'}
+          </Button>
+        </div>
+        <p className="login-form__alt">
+          Pas encore de compte ?{' '}
+          <Link to="/register" className="login-form__link">
+            Créer un compte
+          </Link>
+        </p>
       </form>
     </section>
   )
