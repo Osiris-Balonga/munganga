@@ -5,13 +5,13 @@ Les classes CSS utilisent le préfixe `kb-` (kit dashboard).
 
 ## Fichiers sources (projet Munganga)
 
-| Rôle | Chemin |
-|------|--------|
-| Page dashboard | `src/features/doctor-workspace/DoctorDashboard.jsx` |
-| Graphiques SVG | `src/features/doctor-workspace/dashboard/Charts.jsx` |
-| Calculs KPI / barres | `src/features/doctor-workspace/dashboard/metrics.js` |
-| Styles dashboard | `src/features/doctor-workspace/mboka-theme.css` (sections `kb-banner`, `kb-kpi`, `kb-charts`, `kb-donut`, `kb-bars`) |
-| Données exemple motifs | `src/features/doctor-workspace/mockData.js` → `consultationMix` |
+| Rôle                   | Chemin                                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Page dashboard         | `src/features/doctor-workspace/DoctorDashboard.jsx`                                                                  |
+| Graphiques SVG         | `src/features/doctor-workspace/dashboard/Charts.jsx`                                                                 |
+| Calculs KPI / barres   | `src/features/doctor-workspace/dashboard/metrics.js`                                                                 |
+| Styles dashboard       | `src/features/doctor-workspace/mboka-theme.css` (sections `kb-banner`, `kb-kpi`, `kb-charts`, `kb-donut`, `kb-bars`) |
+| Données exemple motifs | `src/features/doctor-workspace/mockData.js` → `consultationMix`                                                      |
 
 ## Dépendances
 
@@ -866,8 +866,8 @@ export function getKpi(appointments, period) {
     total: 12,
     confirmed: 8,
     pending: 2,
-    occupancy: 72,    // % confirmés / total
-    cancelRate: 8,    // % annulés / total
+    occupancy: 72, // % confirmés / total
+    cancelRate: 8, // % annulés / total
   }
 }
 
@@ -890,4 +890,4 @@ Voir le fichier complet : `src/features/doctor-workspace/dashboard/metrics.js`.
 
 ---
 
-*Extrait du projet Munganga — branche `feature/doctor-workspace` — septembre 2026.*
+_Extrait du projet Munganga — branche `feature/doctor-workspace` — septembre 2026._

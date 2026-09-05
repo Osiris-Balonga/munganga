@@ -70,7 +70,10 @@ export function DoctorWorkspaceProvider({ children }) {
   )
   const appointments = useMemo(
     () =>
-      presentDoctorAppointments(appointmentsQuery.data ?? [], availabilitySlots),
+      presentDoctorAppointments(
+        appointmentsQuery.data ?? [],
+        availabilitySlots,
+      ),
     [appointmentsQuery.data, availabilitySlots],
   )
 

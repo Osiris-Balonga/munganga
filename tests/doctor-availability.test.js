@@ -153,13 +153,10 @@ test('DELETE /api/doctor/availability-slots/:id : suppression d’un créneau r�
   try {
     const token = signTokenFor(10, 'dr.makaya@munganga.cg')
     // Slot id=2 is unavailable + linked to appointment 1 in db.json demo data.
-    const response = await fetch(
-      `${baseUrl}/api/doctor/availability-slots/2`,
-      {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    )
+    const response = await fetch(`${baseUrl}/api/doctor/availability-slots/2`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    })
 
     assert.equal(response.status, 409)
   } finally {

@@ -29,10 +29,7 @@ import {
   startOfDay,
   toDateKey,
 } from './dates'
-import {
-  countApiAvailableSlots,
-  isApiSlotFree,
-} from './agendaHelpers'
+import { countApiAvailableSlots, isApiSlotFree } from './agendaHelpers'
 import {
   DAY_HOURS,
   getAppointmentsForDay,

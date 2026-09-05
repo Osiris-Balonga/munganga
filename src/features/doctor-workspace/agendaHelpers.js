@@ -7,8 +7,7 @@ function isActiveAppointment(item) {
 
 export function isApiSlotFree(availabilitySlots, appointments, date, time) {
   const booked = getAppointmentsForDay(appointments, date).some(
-    (item) =>
-      isActiveAppointment(item) && formatTime(item.startAt) === time,
+    (item) => isActiveAppointment(item) && formatTime(item.startAt) === time,
   )
 
   if (booked) return false
