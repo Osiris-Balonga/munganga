@@ -90,11 +90,12 @@ test('un médecin valide atteint le service (pas bloqué par 401/403)', async ()
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    // La logique métier de listDoctorAppointments n'est pas encore
-    // implémentée (issue #12) : on attend donc 501, pas 401/403. Ce test
-    // vérifie que l'autorisation laisse bien passer un vrai médecin
-    // jusqu'au service, ce qui était cassé avant le correctif.
-    assert.equal(response.status, 501)
+    // listDoctorAppointments est désormais implémentée (issue #12) : la
+    // couverture détaillée de son comportement vit dans
+    // tests/doctor-appointments.test.js. Ce test-ci reste centré sur son
+    // objet d'origine — l'autorisation laisse bien passer un vrai
+    // médecin, ce qui était cassé avant le correctif JWT.
+    assert.equal(response.status, 200)
   } finally {
     await close()
     fs.rmSync(dbPath, { force: true })

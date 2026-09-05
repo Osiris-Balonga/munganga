@@ -6,9 +6,9 @@ const { ApiError } = require('../utils/apiError')
 // fait jamais d'appel HTTP interne — c'est une règle de l'issue #7.
 //
 // bookAppointment (issue #8), confirmAppointment (issue #9),
-// refuseAppointment (issue #10) et cancelAppointment (issue #11) sont
-// implémentées. La logique restante arrive avec les issues #12 (liste
-// médecin) et #13 (créneaux).
+// refuseAppointment (issue #10), cancelAppointment (issue #11) et
+// listDoctorAppointments (issue #12) sont implémentées. La logique
+// restante arrive avec l'issue #13 (créneaux).
 
 // Réserve un créneau pour le patient connecté (issue #8).
 //
@@ -198,11 +198,16 @@ function cancelAppointment(db, patientId, appointmentId) {
   return updatedAppointment
 }
 
-function listDoctorAppointments(_db, _doctor) {
-  throw new ApiError(
-    501,
-    'Route métier préparée mais non implémentée dans le socle initial.',
-  )
+// Liste les rendez-vous du médecin connecté (issue #12).
+//
+// `doctor` est déjà résolu par requireDoctorProfile avant d'arriver ici
+// (voir doctorAppointmentsRoute.js) : la résolution JWT → doctors.userId,
+// le refus 403 d'un patient, et l'erreur si le profil médecin est
+// manquant sont donc déjà gérés en amont, dans la route. Cette fonction
+// n'a plus qu'à filtrer par doctorId — pas d'accès à l'agenda d'un autre
+// médecin possible, quel que soit ce qu'un client enverrait.
+function listDoctorAppointments(db, doctor) {
+  return db.get('appointments').filter({ doctorId: doctor.id }).value()
 }
 
 module.exports = {
