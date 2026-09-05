@@ -1,15 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PlaceholderPage } from '../components/PlaceholderPage'
+import { SignupForm } from '../features/auth/'
 
 export const Route = createFileRoute('/register')({
   component: RegisterPage,
 })
 
 function RegisterPage() {
-  return (
-    <PlaceholderPage
-      title="Créer un compte patient"
-      description="Seuls les patients pourront s'inscrire depuis cette page."
-    />
-  )
+  return <SignupForm />
 }

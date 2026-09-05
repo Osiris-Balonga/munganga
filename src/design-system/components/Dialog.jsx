@@ -10,10 +10,12 @@ export function ConfirmationDialog({
   cancelLabel = 'Annuler',
   destructive = false,
   onConfirm,
+  open,
+  onOpenChange,
 }) {
   return (
-    <Dialog.Root>
-      <Dialog.Trigger render={trigger} />
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      {trigger ? <Dialog.Trigger render={trigger} /> : null}
       <Dialog.Portal>
         <Dialog.Backdrop className="ds-dialog__backdrop" />
         <Dialog.Viewport className="ds-dialog__viewport">
