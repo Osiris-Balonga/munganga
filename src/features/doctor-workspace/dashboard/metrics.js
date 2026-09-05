@@ -1,5 +1,5 @@
 import { addDays, formatTime, startOfDay } from '../dates'
-import { getAppointmentsForDay, getLiveStatus } from '../mockData'
+import { getAppointmentsForDay, getLiveStatus } from '../scheduleUtils'
 
 export function filterByPeriod(appointments, period) {
   const today = startOfDay()

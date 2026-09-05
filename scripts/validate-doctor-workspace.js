@@ -2,9 +2,22 @@
  * Validation workflow — espace praticien (issues #13, #18, #19, #21).
  * Exécuter : node scripts/validate-doctor-workspace.js
  */
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
 const { createApp } = require('../server.js')
 
 const PASSWORD = 'Munganga2026!'
+
+function createTempDbPath() {
+  const source = path.resolve(__dirname, '..', 'db.json')
+  const destination = path.join(
+    os.tmpdir(),
+    `munganga-validate-db-${Date.now()}-${Math.random().toString(36).slice(2)}.json`,
+  )
+  fs.copyFileSync(source, destination)
+  return destination
+}
 
 async function login(baseUrl, email) {
   const response = await fetch(`${baseUrl}/login`, {
@@ -26,7 +39,8 @@ function assert(condition, message) {
 }
 
 async function main() {
-  const app = createApp()
+  const dbPath = createTempDbPath()
+  const app = createApp(dbPath)
   const server = app.listen(0)
   const { port } = server.address()
   const baseUrl = `http://127.0.0.1:${port}`
@@ -215,8 +229,6 @@ async function main() {
 
     // 7) Garde frontend : pas de token preview-doctor dans le code source
     {
-      const fs = require('node:fs')
-      const path = require('node:path')
       const root = path.join(__dirname, '..', 'src')
       const stack = [root]
       let hit = null
@@ -248,6 +260,7 @@ async function main() {
     console.log('\nValidation espace praticien : SUCCÈS')
   } finally {
     await new Promise((resolve) => server.close(resolve))
+    fs.rmSync(dbPath, { force: true })
   }
 }
 

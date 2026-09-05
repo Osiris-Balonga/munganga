@@ -2,7 +2,7 @@ import { Ellipsis, Phone, RotateCcw } from 'lucide-react'
 import { StatusBadge } from '../../../design-system'
 import { InitialsAvatar } from '../../../components/domain'
 import { formatTime } from '../dates'
-import { getLiveStatus } from '../mockData'
+import { getLiveStatus } from '../scheduleUtils'
 
 const liveLabels = {
   'in-progress': 'En cours',

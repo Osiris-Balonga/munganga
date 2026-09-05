@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { EventIllustration } from './visuals'
-import { upcomingClinicEvents } from '../mockData'
+import { upcomingClinicEvents } from '../decorativeFixtures'
 
 export function EventCard() {
   return (

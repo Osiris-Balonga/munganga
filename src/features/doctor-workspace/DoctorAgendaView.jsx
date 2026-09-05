@@ -30,12 +30,14 @@ import {
   toDateKey,
 } from './dates'
 import {
+  countApiAvailableSlots,
+  isApiSlotFree,
+} from './agendaHelpers'
+import {
   DAY_HOURS,
-  countAvailableSlots,
   getAppointmentsForDay,
   getNextAppointment,
-  isSlotAvailable,
-} from './mockData'
+} from './scheduleUtils'
 import { useDoctorWorkspace } from './workspaceContext'
 
 const viewItems = [
@@ -65,7 +67,7 @@ function nowSlotKey(date) {
   return `${String(now.getHours()).padStart(2, '0')}:${now.getMinutes() < 30 ? '00' : '30'}`
 }
 
-function DayTimeline({ date, appointments, weeklyAvailability, onSelect }) {
+function DayTimeline({ date, appointments, availabilitySlots, onSelect }) {
   const dayAppointments = getAppointmentsForDay(appointments, date).filter(
     ACTIVE,
   )
@@ -74,7 +76,7 @@ function DayTimeline({ date, appointments, weeklyAvailability, onSelect }) {
   const rows = DAY_HOURS.map((time) => ({
     time,
     event: dayAppointments.find((item) => formatTime(item.startAt) === time),
-    free: isSlotAvailable(weeklyAvailability, appointments, date, time),
+    free: isApiSlotFree(availabilitySlots, appointments, date, time),
   }))
 
   const parts = [
@@ -213,9 +215,9 @@ function DaySummaryCard({ date, appointments, freeCount }) {
   )
 }
 
-function FreeSlotsCard({ date, appointments, weeklyAvailability }) {
+function FreeSlotsCard({ date, appointments, availabilitySlots }) {
   const slots = DAY_HOURS.filter((time) =>
-    isSlotAvailable(weeklyAvailability, appointments, date, time),
+    isApiSlotFree(availabilitySlots, appointments, date, time),
   )
 
   return (
@@ -252,7 +254,7 @@ export function DoctorAgendaView() {
     appointmentsLoading,
     appointmentsError,
     refetchAppointments,
-    weeklyAvailability,
+    availabilitySlots,
     selectedDate,
     setSelectedDate,
     confirmAppointment,
@@ -273,8 +275,8 @@ export function DoctorAgendaView() {
   const pendingCount = todayAppointments.filter(
     (item) => item.status === 'pending',
   ).length
-  const freeCount = countAvailableSlots(
-    weeklyAvailability,
+  const freeCount = countApiAvailableSlots(
+    availabilitySlots,
     appointments,
     selectedDate,
   )
@@ -308,10 +310,10 @@ export function DoctorAgendaView() {
           ).length,
       ),
       free: days.map((day) =>
-        countAvailableSlots(weeklyAvailability, appointments, day),
+        countApiAvailableSlots(availabilitySlots, appointments, day),
       ),
     }
-  }, [appointments, weeklyAvailability, selectedDate])
+  }, [appointments, availabilitySlots, selectedDate])
 
   const kpiCards = [
     {
@@ -452,9 +454,9 @@ export function DoctorAgendaView() {
               ) : (
                 <DayTimeline
                   appointments={appointments}
+                  availabilitySlots={availabilitySlots}
                   date={selectedDate}
                   onSelect={setSelectedAppointment}
-                  weeklyAvailability={weeklyAvailability}
                 />
               )
             ) : null}
@@ -490,8 +492,8 @@ export function DoctorAgendaView() {
                         const extra = dayEvents.length - 1
                         const free =
                           !event &&
-                          isSlotAvailable(
-                            weeklyAvailability,
+                          isApiSlotFree(
+                            availabilitySlots,
                             appointments,
                             day,
                             `${time.slice(0, 2)}:00`,
@@ -580,8 +582,8 @@ export function DoctorAgendaView() {
             />
             <FreeSlotsCard
               appointments={appointments}
+              availabilitySlots={availabilitySlots}
               date={selectedDate}
-              weeklyAvailability={weeklyAvailability}
             />
           </aside>
         </div>

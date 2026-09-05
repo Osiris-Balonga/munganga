@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { RevenueBars, SalesDonut, Sparkline } from './dashboard/Charts'
 import { getBarSeries, getKpi } from './dashboard/metrics'
 import { DoctorDataState } from './DoctorDataState'
-import { consultationMix } from './mockData'
+import { consultationMix } from './decorativeFixtures'
 import { useDoctorWorkspace } from './workspaceContext'
 
 const periods = [

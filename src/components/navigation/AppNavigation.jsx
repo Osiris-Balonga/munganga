@@ -85,6 +85,7 @@ function Brand() {
 export function AccountMenu({
   mode = 'visitor',
   user,
+  canSwitchWorkspace = false,
   onRoleSwitch,
   onLogout,
 }) {
@@ -124,18 +125,22 @@ export function AccountMenu({
           sideOffset={8}
         >
           <Menu.Popup className="ds-menu__popup account-menu">
-            <Menu.Group>
-              <Menu.GroupLabel className="account-menu__label">
-                Compte
-              </Menu.GroupLabel>
-              <Menu.Item
-                className="ds-menu__item"
-                onClick={() => onRoleSwitch?.(otherMode)}
-              >
-                {otherModeLabel}
-              </Menu.Item>
-            </Menu.Group>
-            <Menu.Separator className="account-menu__separator" />
+            {canSwitchWorkspace ? (
+              <>
+                <Menu.Group>
+                  <Menu.GroupLabel className="account-menu__label">
+                    Compte
+                  </Menu.GroupLabel>
+                  <Menu.Item
+                    className="ds-menu__item"
+                    onClick={() => onRoleSwitch?.(otherMode)}
+                  >
+                    {otherModeLabel}
+                  </Menu.Item>
+                </Menu.Group>
+                <Menu.Separator className="account-menu__separator" />
+              </>
+            ) : null}
             <Menu.Item
               className="ds-menu__item ds-menu__item--danger"
               onClick={onLogout}
@@ -152,6 +157,7 @@ export function AccountMenu({
 export function DesktopHeader({
   mode = 'visitor',
   user,
+  canSwitchWorkspace = false,
   onRoleSwitch,
   onLogout,
 }) {
@@ -175,6 +181,7 @@ export function DesktopHeader({
           ))}
         </nav>
         <AccountMenu
+          canSwitchWorkspace={canSwitchWorkspace}
           mode={mode}
           onLogout={onLogout}
           onRoleSwitch={onRoleSwitch}
@@ -189,6 +196,7 @@ export function MobileTopBar({
   title,
   mode = 'visitor',
   user,
+  canSwitchWorkspace = false,
   onRoleSwitch,
   onLogout,
 }) {
@@ -205,6 +213,7 @@ export function MobileTopBar({
         </Link>
       ) : (
         <AccountMenu
+          canSwitchWorkspace={canSwitchWorkspace}
           mode={mode}
           onLogout={onLogout}
           onRoleSwitch={onRoleSwitch}

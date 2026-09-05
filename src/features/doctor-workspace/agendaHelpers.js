@@ -1,5 +1,5 @@
 import { formatTime, isSameDay } from './dates'
-import { DAY_HOURS, getAppointmentsForDay } from './mockData'
+import { DAY_HOURS, getAppointmentsForDay } from './scheduleUtils'
 
 function isActiveAppointment(item) {
   return !['cancelled', 'refused'].includes(item.status)

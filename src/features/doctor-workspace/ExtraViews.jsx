@@ -7,7 +7,7 @@ import { formatTime, isSameDay, startOfDay } from './dates'
 import { KpiCards } from './KpiCards'
 import { PageBanner } from './PageBanner'
 import { SegmentedControl } from './SegmentedControl'
-import { initialMessages } from './mockData'
+import { decorativeMessages as initialMessages } from './decorativeFixtures'
 import { useDoctorWorkspace } from './workspaceContext'
 
 const patientFilters = [

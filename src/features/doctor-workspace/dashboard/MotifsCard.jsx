@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { CategoryDonut } from './visuals'
-import { consultationMix } from '../mockData'
+import { consultationMix } from '../decorativeFixtures'
 
 export function MotifsCard({ monthlyTotal }) {
   return (

@@ -12,6 +12,8 @@ export function AppShell() {
     select: (state) => state.location.pathname,
   })
   const session = getSession()
+  const accountRole = session?.user?.role
+  const canSwitchWorkspace = accountRole === 'doctor'
   const isDoctorSpace =
     pathname === '/doctor' || pathname.startsWith('/doctor/')
   const mode = isDoctorSpace
@@ -23,10 +25,12 @@ export function AppShell() {
   const user = session?.user
     ? {
         name: `${session.user.firstName} ${session.user.lastName}`,
+        role: accountRole,
       }
     : undefined
 
   function handleRoleSwitch(nextMode) {
+    if (nextMode === 'doctor' && accountRole !== 'doctor') return
     navigate({
       to: nextMode === 'doctor' ? '/doctor' : '/patient/appointments',
     })
@@ -40,12 +44,14 @@ export function AppShell() {
   return (
     <div className={`app-shell ${isDoctorSpace ? 'app-shell--doctor' : ''}`}>
       <DesktopHeader
+        canSwitchWorkspace={canSwitchWorkspace}
         mode={mode}
         onLogout={handleLogout}
         onRoleSwitch={handleRoleSwitch}
         user={user}
       />
       <MobileTopBar
+        canSwitchWorkspace={canSwitchWorkspace}
         mode={mode}
         onLogout={handleLogout}
         onRoleSwitch={handleRoleSwitch}

@@ -11,36 +11,43 @@ import {
   useDeleteAvailabilitySlotMutation,
   useDoctorAvailabilityQuery,
 } from '../availability'
-import { formatTime } from './dates'
 import {
-  initialNotifications,
-  initialWeeklyAvailability,
-  practitioner as defaultPractitioner,
-} from './mockData'
+  decorativeNotifications,
+  practitionerDefaults,
+} from './decorativeFixtures'
+import { presentDoctorAppointments } from './presentDoctorAppointments'
 
 const DoctorWorkspaceContext = createContext(null)
 
 function buildPractitioner(session) {
   const user = session?.user
-  if (!user) return defaultPractitioner
+  if (!user) {
+    return {
+      ...practitionerDefaults,
+      id: null,
+      userId: null,
+      firstName: '',
+      lastName: '',
+      title: 'Praticien',
+      email: '',
+    }
+  }
 
   return {
-    ...defaultPractitioner,
+    ...practitionerDefaults,
     userId: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    phone: user.phone ?? defaultPractitioner.phone,
+    phone: user.phone ?? practitionerDefaults.phone,
     title: `Dr. ${user.firstName} ${user.lastName}`,
   }
 }
 
 export function DoctorWorkspaceProvider({ children }) {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
-  const [weeklyAvailability, setWeeklyAvailability] = useState(
-    initialWeeklyAvailability,
-  )
-  const [notifications, setNotifications] = useState(initialNotifications)
+  // Chrome UI uniquement — pas une source de vérité métier.
+  const [notifications, setNotifications] = useState(decorativeNotifications)
   const [toast, setToast] = useState(null)
 
   const practitioner = useMemo(() => buildPractitioner(getSession()), [])
@@ -57,17 +64,26 @@ export function DoctorWorkspaceProvider({ children }) {
     window.setTimeout(() => setToast(null), 2800)
   }
 
+  const availabilitySlots = useMemo(
+    () => availabilityQuery.data ?? [],
+    [availabilityQuery.data],
+  )
+  const appointments = useMemo(
+    () =>
+      presentDoctorAppointments(appointmentsQuery.data ?? [], availabilitySlots),
+    [appointmentsQuery.data, availabilitySlots],
+  )
+
   const value = useMemo(
     () => ({
       practitioner,
       selectedDate,
       setSelectedDate,
-      appointments: appointmentsQuery.data ?? [],
+      appointments,
       appointmentsLoading: appointmentsQuery.isLoading,
       appointmentsError: appointmentsQuery.error,
       refetchAppointments: appointmentsQuery.refetch,
-      weeklyAvailability,
-      availabilitySlots: availabilityQuery.data ?? [],
+      availabilitySlots,
       availabilityLoading: availabilityQuery.isLoading,
       availabilityError: availabilityQuery.error,
       refetchAvailability: availabilityQuery.refetch,
@@ -97,85 +113,6 @@ export function DoctorWorkspaceProvider({ children }) {
             showToast('Demande refusée. Le créneau est de nouveau disponible.'),
           onError: (error) => showToast(error.message || 'Refus impossible.'),
         })
-      },
-      toggleDay(dayId) {
-        setWeeklyAvailability((current) =>
-          current.map((day) =>
-            day.id === dayId
-              ? {
-                  ...day,
-                  enabled: !day.enabled,
-                  periods:
-                    !day.enabled && day.periods.length === 0
-                      ? [{ id: `${day.id}-am`, start: '08:00', end: '12:00' }]
-                      : day.periods,
-                }
-              : day,
-          ),
-        )
-        showToast('Disponibilités mises à jour.')
-      },
-      addPeriod(dayId) {
-        setWeeklyAvailability((current) =>
-          current.map((day) => {
-            if (day.id !== dayId) return day
-            const hasMorning = day.periods.some(
-              (period) => period.start === '08:00',
-            )
-            const nextPeriod = hasMorning
-              ? {
-                  id: `${day.id}-pm-${Date.now()}`,
-                  start: '14:00',
-                  end: '17:00',
-                }
-              : {
-                  id: `${day.id}-am-${Date.now()}`,
-                  start: '08:00',
-                  end: '12:00',
-                }
-            return {
-              ...day,
-              enabled: true,
-              periods: [...day.periods, nextPeriod],
-            }
-          }),
-        )
-        showToast('Créneau ajouté.')
-      },
-      removePeriod(dayId, periodId) {
-        const day = weeklyAvailability.find((item) => item.id === dayId)
-        const period = day?.periods.find((item) => item.id === periodId)
-        const hasBookedSlot = (appointmentsQuery.data ?? []).some(
-          (appointment) => {
-            const weekday = new Date(appointment.startAt).getDay()
-            const dayIndex = weekday === 0 ? 6 : weekday - 1
-            if (weeklyAvailability[dayIndex].id !== dayId) return false
-            if (['cancelled', 'refused'].includes(appointment.status))
-              return false
-            if (!period) return false
-            const time = formatTime(appointment.startAt)
-            return time >= period.start && time < period.end
-          },
-        )
-
-        if (hasBookedSlot) {
-          showToast('Impossible de supprimer un créneau déjà réservé.')
-          return
-        }
-
-        setWeeklyAvailability((current) =>
-          current.map((item) =>
-            item.id === dayId
-              ? {
-                  ...item,
-                  periods: item.periods.filter(
-                    (entry) => entry.id !== periodId,
-                  ),
-                }
-              : item,
-          ),
-        )
-        showToast('Créneau supprimé.')
       },
       createAvailabilitySlot(payload) {
         return new Promise((resolve, reject) => {
@@ -207,14 +144,14 @@ export function DoctorWorkspaceProvider({ children }) {
       },
     }),
     [
-      appointmentsQuery.data,
+      appointments,
       appointmentsQuery.error,
       appointmentsQuery.isLoading,
       appointmentsQuery.refetch,
-      availabilityQuery.data,
       availabilityQuery.error,
       availabilityQuery.isLoading,
       availabilityQuery.refetch,
+      availabilitySlots,
       confirmMutation,
       createSlotMutation,
       deleteSlotMutation,
@@ -223,7 +160,6 @@ export function DoctorWorkspaceProvider({ children }) {
       refuseMutation,
       selectedDate,
       toast,
-      weeklyAvailability,
     ],
   )
 
